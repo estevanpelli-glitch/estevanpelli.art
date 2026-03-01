@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slideshow - Admin - Estevan Pelli</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .images-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .image-item {
+      position: relative;
+      aspect-ratio: 16 / 10;
+      border: 2px solid #ddd;
+      border-radius: 4px;
+      overflow: hidden;
+      cursor: grab;
+    }
+    .image-item.dragging {
+      opacity: 0.5;
+      border-color: var(--estevan-blue);
+    }
+    .image-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .image-item .remove-btn {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 24px;
+      height: 24px;
+      background: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .image-item .order-num {
+      position: absolute;
+      bottom: 4px;
+      left: 4px;
+      width: 24px;
+      height: 24px;
+      background: var(--estevan-blue);
+      color: white;
+      border-radius: 50%;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+    .add-image-btn {
+      aspect-ratio: 16 / 10;
+      border: 2px dashed #ddd;
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #999;
+      transition: all 0.3s;
+    }
+    .add-image-btn:hover {
+      border-color: var(--estevan-blue);
+      color: var(--estevan-blue);
+    }
+    .image-limit {
+      font-size: 12px;
+      color: #999;
+      margin-top: 8px;
+    }
+    .drag-hint {
+      font-size: 13px;
+      color: #666;
+      margin-top: 8px;
+    }
+    .success-message {
+      background-color: #d4edda;
+      color: #155724;
+      padding: 12px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      display: none;
+    }
+  </style>
+</head>
+<body class="admin-body">
+  <!-- Admin Header -->
+  <header class="admin-header">
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <a href="dashboard.html" style="color: #666; text-decoration: none;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+      </a>
+      <div>
+        <h1>Slideshow da Home</h1>
+        <p id="image-count">0 imagens</p>
+      </div>
+    </div>
+    <a href="../index.html" style="color: var(--estevan-blue); text-decoration: none; font-size: 14px;">Ver site</a>
+  </header>
+
+  <!-- Main Content -->
+  <main class="admin-main">
+    <div id="success-message" class="success-message">Slideshow atualizado com sucesso!</div>
+    
+    <div class="admin-form" style="max-width: 100%;">
+      <div class="form-group">
+        <label>Imagens do Slideshow <span class="image-limit">(mínimo 1, máximo 15)</span></label>
+        <div class="drag-hint">Arraste para reordenar as imagens</div>
+        <div class="images-container" id="images-container">
+          <!-- Images will be loaded here -->
+        </div>
+        <input type="file" id="image-input" accept="image/*" multiple style="display: none;">
+      </div>
+
+      <div class="admin-form-actions">
+        <button type="button" class="btn-secondary" onclick="window.location.href='dashboard.html'">Voltar</button>
+        <button type="button" class="btn-primary" onclick="saveSlideshow()" style="width: auto;">Salvar Alterações</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="../js/main.js"></script>
+  <script>
+    // Check auth
+    if (!CMS.checkAdminAuth()) {
+      window.location.href = 'index.html';
+    }
+
+    const MAX_IMAGES = 15;
+    const MIN_IMAGES = 1;
+    let images = [];
+
+    // Load slideshow images
+    function loadSlideshow() {
+      const data = JSON.parse(localStorage.getItem('estevan-slideshow') || '[]');
+      if (data.length > 0) {
+        images = data;
+      } else {
+        // Default images
+        images = [
+          'uploads/DSCF0200.jpg',
+          'uploads/DSCF0250.jpg',
+          'uploads/DSCF0253.jpg',
+          'uploads/DSCF0257.jpg',
+          'uploads/DSCF0270.jpg',
+          'uploads/IMG_6402.jpg'
+        ];
+      }
+      renderImages();
+    }
+
+    function renderImages() {
+      const container = document.getElementById('images-container');
+      document.getElementById('image-count').textContent = images.length + ' ' + (images.length === 1 ? 'imagem' : 'imagens');
+      
+      let html = images.map((img, index) => `
+        <div class="image-item" draggable="true" data-index="${index}">
+          <span class="order-num">${index + 1}</span>
+          <img src="${img}" alt="Slide ${index + 1}">
+          <button type="button" class="remove-btn" onclick="removeImage(${index})">×</button>
+        </div>
+      `).join('');
+
+      // Add button to add more images
+      if (images.length < MAX_IMAGES) {
+        html += `
+          <div class="add-image-btn" onclick="document.getElementById('image-input').click()">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span style="font-size: 12px; margin-top: 4px;">Adicionar</span>
+          </div>
+        `;
+      }
+
+      container.innerHTML = html;
+      setupDragAndDrop();
+    }
+
+    function setupDragAndDrop() {
+      const items = document.querySelectorAll('.image-item');
+      let draggedItem = null;
+
+      items.forEach(item => {
+        item.addEventListener('dragstart', function(e) {
+          draggedItem = this;
+          this.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+        });
+
+        item.addEventListener('dragend', function() {
+          this.classList.remove('dragging');
+          draggedItem = null;
+        });
+
+        item.addEventListener('dragover', function(e) {
+          e.preventDefault();
+          if (this === draggedItem) return;
+          
+          const container = document.getElementById('images-container');
+          const afterElement = getDragAfterElement(container, e.clientX, e.clientY);
+          
+          if (afterElement && afterElement.classList.contains('image-item')) {
+            container.insertBefore(draggedItem, afterElement);
+          } else if (afterElement && afterElement.classList.contains('add-image-btn')) {
+            container.insertBefore(draggedItem, afterElement);
+          }
+        });
+
+        item.addEventListener('drop', function(e) {
+          e.preventDefault();
+          updateImagesOrder();
+        });
+      });
+    }
+
+    function getDragAfterElement(container, x, y) {
+      const draggableElements = [...container.querySelectorAll('.image-item:not(.dragging), .add-image-btn')];
+      
+      return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offsetX = x - box.left - box.width / 2;
+        const offsetY = y - box.top - box.height / 2;
+        const offset = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
+        
+        if (offset < closest.offset) {
+          return { offset: offset, element: child };
+        } else {
+          return closest;
+        }
+      }, { offset: Number.POSITIVE_INFINITY }).element;
+    }
+
+    function updateImagesOrder() {
+      const items = document.querySelectorAll('.image-item');
+      const newOrder = [];
+      items.forEach(item => {
+        const index = parseInt(item.dataset.index);
+        newOrder.push(images[index]);
+      });
+      images = newOrder;
+      renderImages();
+    }
+
+    function removeImage(index) {
+      if (images.length <= MIN_IMAGES) {
+        alert('É necessário ter pelo menos 1 imagem no slideshow.');
+        return;
+      }
+      images.splice(index, 1);
+      renderImages();
+    }
+
+    // Handle image file upload
+    document.getElementById('image-input').addEventListener('change', function(e) {
+      const files = Array.from(e.target.files);
+      
+      if (images.length + files.length > MAX_IMAGES) {
+        alert(`Você pode adicionar no máximo ${MAX_IMAGES} imagens.`);
+        return;
+      }
+
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          images.push(event.target.result);
+          renderImages();
+        };
+        reader.readAsDataURL(file);
+      });
+      
+      this.value = '';
+    });
+
+    function saveSlideshow() {
+      if (images.length < MIN_IMAGES) {
+        alert('É necessário ter pelo menos 1 imagem no slideshow.');
+        return;
+      }
+      
+      localStorage.setItem('estevan-slideshow', JSON.stringify(images));
+      
+      document.getElementById('success-message').style.display = 'block';
+      setTimeout(() => {
+        document.getElementById('success-message').style.display = 'none';
+      }, 3000);
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', loadSlideshow);
+  </script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Posts - Admin - Estevan Pelli</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="admin-body">
+  <!-- Admin Header -->
+  <header class="admin-header">
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <a href="dashboard.html" style="color: #666; text-decoration: none;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+      </a>
+      <div>
+        <h1 id="section-title">Posts</h1>
+        <p id="section-count">0 posts</p>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <a href="../index.html" style="color: var(--estevan-blue); text-decoration: none; font-size: 14px;">Ver site</a>
+      <a href="edit.html?section=" id="add-btn" class="btn-primary" style="width: auto; padding: 10px 20px; text-decoration: none; display: inline-block;">
+        + Adicionar
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="admin-main">
+    <div id="posts-container" class="admin-posts-list">
+      <!-- Posts will be loaded here -->
+    </div>
+  </main>
+
+  <script src="../js/main.js"></script>
+  <script>
+    // Check auth
+    if (!CMS.checkAdminAuth()) {
+      window.location.href = 'index.html';
+    }
+
+    // Get section from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const section = urlParams.get('section');
+
+    const sectionLabels = {
+      'news': 'News',
+      'works': 'Works',
+      'exhibitions': 'Exhibitions',
+      'texts': 'Texts',
+      'photo-album': 'Photo Album'
+    };
+
+    if (!section || !sectionLabels[section]) {
+      window.location.href = 'dashboard.html';
+    }
+
+    // Update page
+    document.getElementById('section-title').textContent = sectionLabels[section];
+    document.getElementById('add-btn').href = 'edit.html?section=' + section;
+
+    function loadPosts() {
+      const posts = CMS.getPostsBySection(section);
+      document.getElementById('section-count').textContent = posts.length + ' ' + (posts.length === 1 ? 'post' : 'posts');
+      
+      const container = document.getElementById('posts-container');
+      
+      if (posts.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <p>Nenhum post encontrado</p>
+            <a href="edit.html?section=${section}" style="color: var(--estevan-blue);">Criar primeiro post</a>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = posts.map(post => `
+        <div class="admin-post-item">
+          <div class="admin-post-thumb">
+            ${post.imageUrl ? `<img src="${post.imageUrl}" alt="">` : '<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #999;">Sem imagem</div>'}
+          </div>
+          <div class="admin-post-info">
+            <h4>${post.titlePT || post.titleEN || 'Sem título'}</h4>
+            <p>${new Date(post.date).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+          </div>
+          <div class="admin-post-actions">
+            <a href="edit.html?section=${section}&id=${post.id}" class="btn-small btn-edit">Editar</a>
+            <button class="btn-danger" onclick="deletePost('${post.id}')">Excluir</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function deletePost(id) {
+      if (confirm('Tem certeza que deseja excluir este post?')) {
+        CMS.deletePost(id);
+        loadPosts();
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadPosts);
+  </script>
+</body>
+</html>

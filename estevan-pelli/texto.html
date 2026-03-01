@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Text - Estevan Pelli</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230000ff'/%3E%3C/svg%3E">
+</head>
+<body class="text-individual-page">
+  <header class="site-header" id="site-header">
+    <button class="menu-toggle" id="menu-toggle"><span></span><span></span><span></span></button>
+    <nav class="desktop-menu" id="desktop-menu">
+      <a href="info.html" data-pt="Info" data-en="Info">Info</a>
+      <a href="news.html" data-pt="News" data-en="News">News</a>
+      <a href="texts.html" data-pt="Textos" data-en="Texts">Texts</a>
+      <a href="works.html" data-pt="Trabalhos" data-en="Works">Works</a>
+      <a href="exhibitions.html" data-pt="Exposições" data-en="Exhibitions">Exhibitions</a>
+      <a href="photo-album.html" data-pt="Álbum de fotos" data-en="Photo Album">Photo Album</a>
+      <a href="tags.html" data-pt="Tags" data-en="Tags">Tags</a>
+    </nav>
+    <h1 class="page-title-header" id="page-title-header">Text</h1>
+    <a href="index.html" class="site-logo">ESTEVAN PELLI</a>
+  </header>
+
+  <nav class="mobile-menu-dropdown" id="mobile-menu-dropdown">
+    <ul class="menu-items">
+      <li><a href="info.html" data-pt="Info" data-en="Info">Info</a></li>
+      <li><a href="news.html" data-pt="News" data-en="News">News</a></li>
+      <li><a href="texts.html" data-pt="Textos" data-en="Texts">Texts</a></li>
+      <li><a href="works.html" data-pt="Trabalhos" data-en="Works">Works</a></li>
+      <li><a href="exhibitions.html" data-pt="Exposições" data-en="Exhibitions">Exhibitions</a></li>
+      <li><a href="photo-album.html" data-pt="Álbum de fotos" data-en="Photo Album">Photo Album</a></li>
+      <li><a href="tags.html" data-pt="Tags" data-en="Tags">Tags</a></li>
+    </ul>
+    <div class="menu-lang-toggle">
+      <button id="menu-lang-pt" onclick="setLanguage('PT')">PT</button>
+      <span>|</span>
+      <button id="menu-lang-en" onclick="setLanguage('EN')">EN</button>
+    </div>
+  </nav>
+
+  <main class="content-page">
+    <div class="content-container">
+      <a href="texts.html" class="back-link">&#8592; <span id="back-text">Back to Texts</span></a>
+      <article id="text-content"></article>
+      <a href="texts.html" class="back-link" style="margin-top:48px;">&#8592; <span id="back-text2">Back to Texts</span></a>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-content">
+      <p class="footer-copyright">© 2026 Estevan Pelli <a href="admin/index.html" class="footer-admin-link">Admin</a></p>
+      <div class="footer-links">
+        <a href="https://instagram.com/estevanpelli" target="_blank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg></a>
+        <a href="contact.html" data-pt="Contato" data-en="Contact">Contact</a>
+        <a href="tags.html">Tags</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script>
+    window.addEventListener('scroll', () => {
+      const header = document.getElementById('site-header');
+      if (window.scrollY > 50) header.classList.add('scrolled');
+      else header.classList.remove('scrolled');
+    });
+
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu-dropdown');
+    menuToggle.addEventListener('click', () => mobileMenu.classList.toggle('active'));
+    document.addEventListener('click', (e) => { if (!menuToggle.contains(e.target) && !mobileMenu.contains(e.target)) mobileMenu.classList.remove('active'); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') mobileMenu.classList.remove('active'); });
+
+    function updateMenuLang() {
+      const lang = CMS.getLang();
+      document.getElementById('menu-lang-pt').classList.toggle('active', lang === 'PT');
+      document.getElementById('menu-lang-en').classList.toggle('active', lang === 'EN');
+      document.querySelectorAll('.menu-items a, .desktop-menu a').forEach(link => { const text = link.getAttribute(`data-${lang.toLowerCase()}`); if (text) link.textContent = text; });
+    }
+    function setLanguage(lang) { CMS.setLang(lang); updateMenuLang(); }
+
+    function renderText() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const textId = urlParams.get('id');
+      const lang = CMS.getLang();
+      if (!textId) { window.location.href = 'texts.html'; return; }
+      const post = CMS.getPostById(textId);
+      if (!post || post.section !== 'texts') { window.location.href = 'texts.html'; return; }
+      const title = post[`title${lang}`] || post.titlePT;
+      const description = post[`description${lang}`] || post.descriptionPT;
+      document.title = title + ' - Estevan Pelli';
+      document.getElementById('page-title-header').textContent = title;
+      document.getElementById('back-text').textContent = lang === 'PT' ? 'Voltar para Textos' : 'Back to Texts';
+      document.getElementById('back-text2').textContent = lang === 'PT' ? 'Voltar para Textos' : 'Back to Texts';
+      document.getElementById('text-content').innerHTML = `
+        <h2 class="text-content-title">${title}</h2>
+        <p class="text-content-date">${formatDate(post.date)}</p>
+        <div class="text-content-body">${description}</div>
+      `;
+    }
+    document.addEventListener('DOMContentLoaded', () => { updateMenuLang(); renderText(); });
+  </script>
+</body>
+</html>

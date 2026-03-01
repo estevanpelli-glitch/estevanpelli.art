@@ -1,0 +1,1467 @@
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --estevan-blue: #0000ff;
+  --estevan-white: #ffffff;
+  --estevan-black: #000000;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Archivo', sans-serif;
+  background-color: var(--estevan-white);
+  color: var(--estevan-blue);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================
+   HEADER GLOBAL
+   ============================================ */
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 32px;
+  background: transparent;
+  transition: background 0.3s ease;
+}
+
+.site-header.scrolled {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(10px);
+}
+
+/* Index page header - white elements */
+.index-page .site-header {
+  color: var(--estevan-white);
+}
+
+.index-page .site-header.scrolled {
+  color: var(--estevan-blue);
+  background: rgba(255, 255, 255, 0.75);
+}
+
+/* Menu toggle (hamburger) - Desktop: hidden, Mobile: visible */
+.menu-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  display: none; /* Hidden by default on desktop */
+  flex-direction: column;
+  gap: 5px;
+  z-index: 1001;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.menu-toggle span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background-color: var(--estevan-blue);
+  transition: 0.3s;
+}
+
+/* Index page - white hamburger */
+.index-page .menu-toggle span {
+  background-color: var(--estevan-white);
+}
+
+.index-page .site-header.scrolled .menu-toggle span {
+  background-color: var(--estevan-blue);
+}
+
+/* Page title in header (appears on scroll) - 2px smaller than site-logo */
+.page-title-header {
+  font-size: clamp(0.875rem, 1.8vw, 1.125rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.site-header.scrolled .page-title-header {
+  opacity: 1;
+}
+
+/* Site logo */
+.site-logo {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  color: inherit;
+}
+
+.index-page .site-logo {
+  color: var(--estevan-white);
+}
+
+.index-page .site-header.scrolled .site-logo {
+  color: var(--estevan-blue);
+}
+
+/* ============================================
+   DESKTOP MENU (horizontal in header)
+   ============================================ */
+.desktop-menu {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.desktop-menu a {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--estevan-blue);
+  text-decoration: none;
+  transition: opacity 0.3s;
+}
+
+.desktop-menu a:hover {
+  opacity: 0.6;
+}
+
+/* ============================================
+   MOBILE MENU (dropdown, not fullscreen)
+   ============================================ */
+.mobile-menu-dropdown {
+  position: fixed;
+  top: 70px;
+  left: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  z-index: 1999;
+  padding: 20px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+}
+
+.mobile-menu-dropdown.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.mobile-menu-dropdown .menu-items {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mobile-menu-dropdown .menu-items a {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--estevan-blue);
+  text-decoration: none;
+  padding: 8px 0;
+  display: block;
+}
+
+.mobile-menu-dropdown .menu-items a:hover {
+  opacity: 0.6;
+}
+
+.mobile-menu-dropdown .menu-lang-toggle {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 0, 255, 0.2);
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.mobile-menu-dropdown .menu-lang-toggle button {
+  background: none;
+  border: none;
+  font-family: 'Archivo', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--estevan-blue);
+  cursor: pointer;
+  opacity: 0.5;
+}
+
+.mobile-menu-dropdown .menu-lang-toggle button.active {
+  opacity: 1;
+}
+
+/* ============================================
+   INDEX PAGE - SLIDESHOW
+   ============================================ */
+.index-slideshow {
+  width: 100%;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.slideshow-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.slideshow-slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+
+.slideshow-slide.active {
+  opacity: 1;
+}
+
+.slideshow-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.slideshow-dots {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+}
+
+.slideshow-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.5);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.slideshow-dot.active {
+  background: var(--estevan-white);
+  width: 24px;
+}
+
+/* Index footer - white */
+.index-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20px 32px;
+  color: var(--estevan-white);
+  z-index: 100;
+}
+
+.index-footer .footer-links a {
+  color: var(--estevan-white);
+}
+
+/* ============================================
+   CONTENT PAGES - GENERAL
+   ============================================ */
+.content-page {
+  min-height: 100vh;
+  padding-top: 80px;
+  padding-bottom: 80px;
+}
+
+/* Page title - aligned to 10% left */
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 48px;
+  color: var(--estevan-blue);
+  padding-left: 10%;
+}
+
+/* ============================================
+   CARROSSEL PADRONIZADO
+   ============================================ */
+.carousel-section {
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 0;
+}
+
+.carousel-container {
+  display: flex;
+  cursor: grab;
+  user-select: none;
+  touch-action: pan-y;
+}
+
+.carousel-container:active {
+  cursor: grabbing;
+}
+
+.carousel-slide {
+  flex: 0 0 80%;
+  height: 50vh;
+  margin: 0 10%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.carousel-slide img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Carousel navigation arrows - simple lines */
+.carousel-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 32px;
+  color: var(--estevan-blue);
+  cursor: pointer;
+  padding: 20px;
+  z-index: 10;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+
+.carousel-nav:hover {
+  opacity: 1;
+}
+
+.carousel-prev {
+  left: 5%;
+}
+
+.carousel-next {
+  right: 5%;
+}
+
+/* Carousel caption overlay */
+.carousel-caption {
+  position: absolute;
+  top: 20px;
+  left: 10%;
+  color: var(--estevan-blue);
+  z-index: 5;
+  max-width: 40%;
+}
+
+.carousel-caption::before {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 2px;
+  background: var(--estevan-blue);
+  margin-bottom: 12px;
+}
+
+.carousel-caption-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.carousel-caption-meta {
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+/* ============================================
+   POST INFO SECTION
+   ============================================ */
+.post-info {
+  padding: 16px 10% 32px;
+  color: var(--estevan-blue);
+}
+
+.post-info-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.post-info-date {
+  font-size: 13px;
+  opacity: 0.7;
+  margin-bottom: 16px;
+}
+
+.post-info-meta {
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.post-info-description {
+  margin-top: 16px;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+/* ============================================
+   TAGS ICON (+)
+   ============================================ */
+.tags-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  color: var(--estevan-blue);
+  font-size: 24px;
+  font-weight: 300;
+  cursor: pointer;
+  margin: 20px 10%;
+  transition: opacity 0.3s;
+}
+
+.tags-trigger:hover {
+  opacity: 0.6;
+}
+
+/* ============================================
+   SEPARATOR LINE - FULL WIDTH
+   ============================================ */
+.post-separator {
+  height: 2px;
+  background: var(--estevan-blue);
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0 0 40px 0;
+  opacity: 0.5;
+}
+
+/* Divider line (gray) - full width */
+.divider-full {
+  height: 1px;
+  background: rgba(0, 0, 255, 0.2);
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+}
+
+/* ============================================
+   TAGS MODAL - FULLSCREEN BLUE
+   ============================================ */
+.tags-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: var(--estevan-blue);
+  z-index: 3000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.tags-modal.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.tags-modal-close {
+  position: absolute;
+  top: 20px;
+  right: 32px;
+  background: none;
+  border: none;
+  font-size: 36px;
+  font-weight: 100;
+  color: var(--estevan-white);
+  cursor: pointer;
+  line-height: 1;
+}
+
+.tags-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: center;
+  padding: 40px;
+  max-width: 800px;
+}
+
+.tags-cloud a {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--estevan-white);
+  text-decoration: none;
+  transition: opacity 0.3s;
+}
+
+.tags-cloud a:hover {
+  opacity: 0.7;
+}
+
+/* ============================================
+   INFO PAGE - 900px fixed
+   ============================================ */
+.info-page .content-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.bio-section {
+  margin-bottom: 64px;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 24px;
+  color: var(--estevan-blue);
+}
+
+.bio-text {
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--estevan-blue);
+  margin-bottom: 20px;
+}
+
+.cv-section {
+  padding-left: 30px;
+}
+
+.cv-list {
+  list-style: none;
+}
+
+.cv-list li {
+  font-size: 14px;
+  color: var(--estevan-blue);
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(0, 0, 255, 0.2);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.cv-list li::before {
+  content: '•';
+  color: var(--estevan-blue);
+  font-weight: bold;
+}
+
+/* ============================================
+   TEXTS PAGE
+   ============================================ */
+.texts-page .content-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.text-list-item {
+  cursor: pointer;
+  padding: 24px 0;
+  border-bottom: 1px solid rgba(0, 0, 255, 0.2);
+}
+
+.text-list-item:last-child {
+  border-bottom: none;
+}
+
+.text-list-item:hover .text-list-title {
+  opacity: 0.6;
+}
+
+.text-list-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--estevan-blue);
+  transition: opacity 0.3s;
+}
+
+.text-list-meta {
+  font-size: 13px;
+  color: var(--estevan-blue);
+  opacity: 0.7;
+  margin-bottom: 12px;
+}
+
+.text-list-excerpt {
+  font-size: 15px;
+  color: var(--estevan-blue);
+  opacity: 0.8;
+  line-height: 1.6;
+}
+
+/* Clarice quote */
+.clarice-quote {
+  margin-top: 64px;
+  padding: 40px 0;
+  text-align: right;
+  border-top: 1px solid rgba(0, 0, 255, 0.2);
+}
+
+.clarice-quote-mark {
+  font-size: 72px;
+  color: var(--estevan-blue);
+  line-height: 0.5;
+  margin-bottom: -10px;
+  font-family: Georgia, serif;
+}
+
+.clarice-quote-text {
+  font-size: 14px;
+  color: var(--estevan-blue);
+  font-weight: 600;
+  line-height: 1.8;
+  max-width: 600px;
+  margin-left: auto;
+  margin-bottom: 16px;
+  white-space: pre-line;
+}
+
+.clarice-quote-author {
+  font-size: 13px;
+  color: var(--estevan-blue);
+  opacity: 0.7;
+}
+
+/* ============================================
+   TEXT INDIVIDUAL PAGE
+   ============================================ */
+.text-individual-page {
+  background: var(--estevan-white);
+}
+
+.text-individual-page .content-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--estevan-blue);
+  text-decoration: none;
+  font-size: 14px;
+  margin-bottom: 32px;
+  float: right;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+
+.back-link:hover {
+  opacity: 1;
+}
+
+.text-content-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--estevan-blue);
+  margin-bottom: 16px;
+  clear: both;
+}
+
+.text-content-date {
+  font-size: 13px;
+  color: var(--estevan-blue);
+  opacity: 0.7;
+  margin-bottom: 32px;
+}
+
+.text-content-body {
+  color: var(--estevan-blue);
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+.text-content-body p {
+  margin-bottom: 20px;
+}
+
+.text-content-body img {
+  max-width: 100%;
+  max-height: 900px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  margin: 24px auto;
+  display: block;
+}
+
+/* ============================================
+   NEWS PAGE
+   ============================================ */
+.news-item {
+  margin-bottom: 0;
+}
+
+/* ============================================
+   PHOTO ALBUM - 20%/60%/20%
+   ============================================ */
+.photo-album-page .content-container {
+  padding: 0 20%;
+}
+
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.photo-item {
+  cursor: pointer;
+  aspect-ratio: 1;
+  overflow: hidden;
+}
+
+.photo-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.photo-item:hover img {
+  transform: scale(1.03);
+}
+
+/* ============================================
+   LIGHTBOX
+   ============================================ */
+.lightbox {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: var(--estevan-white);
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.lightbox.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 20px;
+  right: 32px;
+  background: none;
+  border: none;
+  font-size: 36px;
+  font-weight: 100;
+  color: var(--estevan-blue);
+  cursor: pointer;
+  line-height: 1;
+  z-index: 10;
+}
+
+.lightbox-image {
+  max-width: 90%;
+  max-height: 80vh;
+  object-fit: contain;
+}
+
+.lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 32px;
+  color: var(--estevan-blue);
+  cursor: pointer;
+  padding: 10px;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+
+.lightbox-nav:hover {
+  opacity: 1;
+}
+
+.lightbox-prev {
+  left: 10px;
+}
+
+.lightbox-next {
+  right: 10px;
+}
+
+/* ============================================
+   TAGS PAGE - 20%/60%/20%
+   ============================================ */
+.tags-page .content-container {
+  padding: 0 20%;
+}
+
+.tags-page .tags-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: flex-start;
+}
+
+.tags-page .tags-cloud a {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--estevan-blue);
+  text-decoration: none;
+  transition: opacity 0.3s;
+}
+
+.tags-page .tags-cloud a:hover {
+  opacity: 0.6;
+}
+
+/* ============================================
+   TAG RESULTS PAGE
+   ============================================ */
+.tag-results-page .content-container {
+  padding: 0 20%;
+}
+
+.tag-result-item {
+  padding: 24px 0;
+  border-bottom: 1px solid rgba(0, 0, 255, 0.2);
+}
+
+.tag-result-item:last-child {
+  border-bottom: none;
+}
+
+.tag-result-image {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.tag-result-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tag-result-caption {
+  font-size: 14px;
+  color: var(--estevan-blue);
+}
+
+.tag-result-caption a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.tag-result-caption a:hover {
+  opacity: 0.7;
+}
+
+/* ============================================
+   AGORA PAGE
+   ============================================ */
+.agora-page .content-container {
+  padding: 0 10%;
+}
+
+.agora-list {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.agora-item {
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(0, 0, 255, 0.2);
+}
+
+.agora-item:last-child {
+  border-bottom: none;
+}
+
+.agora-item-date {
+  font-size: 13px;
+  color: var(--estevan-blue);
+  opacity: 0.7;
+  margin-bottom: 4px;
+}
+
+.agora-item-local {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--estevan-blue);
+  margin-bottom: 8px;
+}
+
+.agora-item-frase {
+  font-size: 15px;
+  color: var(--estevan-blue);
+  opacity: 0.8;
+  font-style: italic;
+}
+
+/* Footer Agora link */
+.footer-agora {
+  text-align: center;
+  margin-top: 8px;
+}
+
+.footer-agora a {
+  font-weight: 700;
+  color: var(--estevan-blue);
+  text-decoration: none;
+}
+
+.footer-agora-frase {
+  font-size: 13px;
+  color: var(--estevan-blue);
+  opacity: 0.8;
+  font-style: italic;
+  margin-top: 4px;
+}
+
+/* ============================================
+   FOOTER - GENERAL
+   ============================================ */
+.site-footer {
+  padding: 24px 32px;
+  border-top: 1px solid rgba(0, 0, 255, 0.2);
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.footer-copyright {
+  font-size: 13px;
+  color: var(--estevan-blue);
+  opacity: 0.7;
+}
+
+.footer-links {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+
+.footer-links a {
+  font-size: 13px;
+  color: var(--estevan-blue);
+  opacity: 0.7;
+  text-decoration: none;
+  transition: opacity 0.3s;
+}
+
+.footer-links a:hover {
+  opacity: 1;
+}
+
+.footer-links a svg {
+  width: 18px;
+  height: 18px;
+}
+
+.footer-admin-link {
+  font-size: 11px;
+  opacity: 0.4;
+  margin-left: 16px;
+}
+
+/* ============================================
+   ADMIN STYLES
+   ============================================ */
+.admin-body {
+  background: #f5f5f5;
+  min-height: 100vh;
+}
+
+.admin-login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.admin-login-box {
+  background: var(--estevan-white);
+  padding: 48px;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+}
+
+.admin-login-box h1 {
+  color: var(--estevan-blue);
+  font-size: 24px;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.admin-login-box h2 {
+  font-size: 16px;
+  color: var(--estevan-blue);
+  opacity: 0.7;
+  text-align: center;
+  margin-bottom: 32px;
+  font-weight: 400;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--estevan-blue);
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid rgba(0, 0, 255, 0.3);
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.3s;
+  color: var(--estevan-blue);
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--estevan-blue);
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 14px;
+  background: var(--estevan-blue);
+  color: var(--estevan-white);
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.3s;
+}
+
+.btn-primary:hover {
+  opacity: 0.8;
+}
+
+.btn-secondary {
+  padding: 12px 24px;
+  background: transparent;
+  color: var(--estevan-blue);
+  border: 1px solid var(--estevan-blue);
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-secondary:hover {
+  background: var(--estevan-blue);
+  color: var(--estevan-white);
+}
+
+/* Admin header */
+.admin-header {
+  background: var(--estevan-white);
+  border-bottom: 1px solid rgba(0, 0, 255, 0.2);
+  padding: 16px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-header h1 {
+  font-size: 18px;
+  color: var(--estevan-blue);
+}
+
+.admin-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px;
+}
+
+.admin-sections {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.admin-section-card {
+  background: var(--estevan-white);
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 255, 0.08);
+  cursor: pointer;
+  transition: box-shadow 0.3s;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.admin-section-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 255, 0.15);
+}
+
+.admin-section-card h3 {
+  font-size: 18px;
+  margin-bottom: 8px;
+  color: var(--estevan-blue);
+}
+
+.admin-section-card p {
+  font-size: 14px;
+  color: var(--estevan-blue);
+  opacity: 0.7;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+/* Desktop (>1024px): horizontal menu visible */
+@media (min-width: 1025px) {
+  .desktop-menu {
+    display: flex;
+  }
+  
+  .menu-toggle {
+    display: none !important;
+  }
+}
+
+/* Tablet/Mobile (<1024px): hamburger menu */
+@media (max-width: 1024px) {
+  .desktop-menu {
+    display: none;
+  }
+  
+  .menu-toggle {
+    display: flex;
+  }
+  
+  .page-title {
+    padding-left: 5%;
+  }
+  
+  .post-info {
+    padding: 24px 5%;
+  }
+  
+  .tags-trigger {
+    margin: 16px 5%;
+  }
+  
+  .carousel-slide {
+    flex: 0 0 90%;
+    margin: 0 5%;
+  }
+  
+  .photo-album-page .content-container,
+  .tags-page .content-container,
+  .tag-results-page .content-container {
+    padding: 0 5%;
+  }
+  
+  .agora-page .content-container {
+    padding: 0 5%;
+  }
+}
+
+@media (max-width: 768px) {
+  .site-header {
+    padding: 16px 20px;
+  }
+  
+  .page-title {
+    font-size: 24px;
+    padding-left: 20px;
+  }
+  
+  .page-title-header {
+    left: 60px;
+    transform: none;
+    font-size: 14px;
+  }
+  
+  .menu-items a {
+    font-size: 20px;
+  }
+  
+  .carousel-slide {
+    height: 50vh;
+  }
+  
+  .carousel-nav {
+    font-size: 24px;
+    padding: 10px;
+  }
+  
+  .carousel-caption {
+    max-width: 60%;
+  }
+  
+  .tags-cloud a {
+    font-size: 18px;
+  }
+  
+  .text-content-title {
+    font-size: 24px;
+  }
+  
+  .footer-content {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .cv-section {
+    padding-left: 0;
+  }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+  .carousel-slide {
+    height: 75vh;
+  }
+  
+  .slideshow-slide img {
+    object-position: center 30%;
+  }
+}
+
+/* ============================================
+   CONTACT PAGE
+   ============================================ */
+.contact-content {
+  padding: 100px 10% 80px;
+}
+
+.contact-container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 64px;
+  margin-top: 48px;
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.contact-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.contact-form-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--estevan-blue);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.contact-form-group input,
+.contact-form-group textarea {
+  border: none;
+  border-bottom: 2px solid var(--estevan-blue);
+  background: transparent;
+  padding: 12px 0;
+  font-family: 'Archivo', sans-serif;
+  font-size: 16px;
+  color: var(--estevan-blue);
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.contact-form-group input:focus,
+.contact-form-group textarea:focus {
+  border-bottom-color: var(--estevan-blue);
+}
+
+.contact-form-group input::placeholder,
+.contact-form-group textarea::placeholder {
+  color: rgba(0, 0, 255, 0.4);
+}
+
+.contact-form-group textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.contact-submit {
+  align-self: flex-start;
+  background: var(--estevan-blue);
+  color: var(--estevan-white);
+  border: none;
+  padding: 14px 48px;
+  font-family: 'Archivo', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: opacity 0.3s;
+}
+
+.contact-submit:hover {
+  opacity: 0.8;
+}
+
+.contact-info-section {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+.contact-info-item h3 {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--estevan-blue);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 16px;
+  opacity: 0.6;
+}
+
+.contact-instagram {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--estevan-blue);
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 600;
+  transition: opacity 0.3s;
+}
+
+.contact-instagram:hover {
+  opacity: 0.7;
+}
+
+.contact-instagram svg {
+  width: 24px;
+  height: 24px;
+}
+
+.contact-email-link {
+  color: var(--estevan-blue);
+  text-decoration: none;
+  font-size: 16px;
+  transition: opacity 0.3s;
+}
+
+.contact-email-link:hover {
+  opacity: 0.7;
+}
+
+.contact-success {
+  background: rgba(0, 0, 255, 0.1);
+  padding: 20px;
+  margin-top: 24px;
+  border-left: 3px solid var(--estevan-blue);
+}
+
+.contact-success p {
+  color: var(--estevan-blue);
+  font-weight: 600;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .contact-content {
+    padding: 100px 5% 80px;
+  }
+  
+  .contact-grid {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}

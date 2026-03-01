@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editar - Admin - Estevan Pelli</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .images-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .image-item {
+      position: relative;
+      aspect-ratio: 1;
+      border: 2px solid #ddd;
+      border-radius: 4px;
+      overflow: hidden;
+      cursor: grab;
+    }
+    .image-item.dragging {
+      opacity: 0.5;
+      border-color: var(--estevan-blue);
+    }
+    .image-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .image-item .remove-btn {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 24px;
+      height: 24px;
+      background: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .image-item .order-num {
+      position: absolute;
+      bottom: 4px;
+      left: 4px;
+      width: 20px;
+      height: 20px;
+      background: var(--estevan-blue);
+      color: white;
+      border-radius: 50%;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+    .add-image-btn {
+      aspect-ratio: 1;
+      border: 2px dashed #ddd;
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #999;
+      transition: all 0.3s;
+    }
+    .add-image-btn:hover {
+      border-color: var(--estevan-blue);
+      color: var(--estevan-blue);
+    }
+    .image-limit {
+      font-size: 12px;
+      color: #999;
+      margin-top: 8px;
+    }
+    .drag-hint {
+      font-size: 12px;
+      color: #666;
+      margin-top: 8px;
+    }
+    /* Rich Text Editor */
+    .rte-toolbar {
+      display: flex;
+      gap: 4px;
+      padding: 8px;
+      background: #f5f5f5;
+      border: 1px solid #ddd;
+      border-bottom: none;
+      border-radius: 4px 4px 0 0;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .rte-toolbar button {
+      padding: 6px 10px;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .rte-toolbar button:hover {
+      background: var(--estevan-blue);
+      color: white;
+      border-color: var(--estevan-blue);
+    }
+    .rte-toolbar button.active {
+      background: var(--estevan-blue);
+      color: white;
+      border-color: var(--estevan-blue);
+    }
+    .rte-toolbar select {
+      padding: 6px 8px;
+      border: 1px solid #ddd;
+      border-radius: 3px;
+      font-size: 13px;
+      font-family: inherit;
+    }
+    .rte-toolbar .separator {
+      width: 1px;
+      height: 24px;
+      background: #ddd;
+      margin: 0 4px;
+    }
+    .rte-toolbar .clear-btn {
+      background: #ff6b6b;
+      color: white;
+      border-color: #ff6b6b;
+    }
+    .rte-toolbar .clear-btn:hover {
+      background: #ee5a5a;
+      border-color: #ee5a5a;
+    }
+    .rte-content {
+      min-height: 250px;
+      padding: 16px;
+      border: 1px solid #ddd;
+      border-radius: 0 0 4px 4px;
+      background: white;
+      overflow-y: auto;
+      font-family: 'Archivo', sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+    }
+    .rte-content:focus {
+      outline: none;
+      border-color: var(--estevan-blue);
+    }
+    .rte-content p { margin-bottom: 12px; }
+    .rte-content ul, .rte-content ol { margin-left: 24px; margin-bottom: 12px; }
+    .rte-content img { max-width: 100%; height: auto; margin: 12px 0; display: block; }
+    .rte-content blockquote { border-left: 3px solid var(--estevan-blue); padding-left: 16px; margin: 16px 0; color: #666; font-style: italic; }
+    .rte-content hr { border: none; border-top: 1px solid #ddd; margin: 20px 0; }
+    .rte-content h2 { font-size: 22px; font-weight: 600; margin: 20px 0 12px; }
+    .rte-content h3 { font-size: 18px; font-weight: 600; margin: 18px 0 10px; }
+    .rte-content h4 { font-size: 16px; font-weight: 600; margin: 16px 0 8px; }
+    .caption-alignment {
+      display: flex;
+      gap: 16px;
+      margin-top: 8px;
+    }
+    .caption-alignment label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .success-message {
+      background-color: #d4edda;
+      color: #155724;
+      padding: 12px 16px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    .error-message {
+      background-color: #f8d7da;
+      color: #721c24;
+      padding: 12px 16px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    /* Bilingual fields */
+    .lang-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .lang-tab {
+      padding: 8px 16px;
+      background: #f5f5f5;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .lang-tab.active {
+      background: var(--estevan-blue);
+      color: white;
+      border-color: var(--estevan-blue);
+    }
+    .lang-field {
+      display: none;
+    }
+    .lang-field.active {
+      display: block;
+    }
+    /* Tags */
+    .tags-input-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background: white;
+      min-height: 44px;
+    }
+    .tags-input-container:focus-within {
+      border-color: var(--estevan-blue);
+    }
+    .tag-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      background: var(--estevan-blue);
+      color: white;
+      border-radius: 16px;
+      font-size: 13px;
+    }
+    .tag-item button {
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+      padding: 0;
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .tags-input {
+      flex: 1;
+      min-width: 100px;
+      border: none;
+      outline: none;
+      font-size: 14px;
+      padding: 4px;
+    }
+    .tags-suggestions {
+      margin-top: 8px;
+      font-size: 13px;
+      color: #666;
+    }
+    .tags-suggestions span {
+      display: inline-block;
+      padding: 4px 10px;
+      background: #f5f5f5;
+      border-radius: 12px;
+      margin-right: 6px;
+      margin-bottom: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tags-suggestions span:hover {
+      background: var(--estevan-blue);
+      color: white;
+    }
+    /* Section specific fields */
+    .section-fields {
+      display: none;
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .section-fields.active {
+      display: block;
+    }
+    .section-fields h4 {
+      margin-bottom: 16px;
+      font-size: 14px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 768px) {
+      .field-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body class="admin-body">
+  <!-- Admin Header -->
+  <header class="admin-header">
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <a href="#" onclick="goBack(); return false;" style="color: #666; text-decoration: none;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+      </a>
+      <div>
+        <h1 id="page-title">Novo Post</h1>
+        <p id="section-name">Section</p>
+      </div>
+    </div>
+    <a href="../index.html" style="color: var(--estevan-blue); text-decoration: none; font-size: 14px;">Ver site</a>
+  </header>
+
+  <!-- Main Content -->
+  <main class="admin-main">
+    <div id="success-message" class="success-message">Post salvo com sucesso!</div>
+    <div id="error-message" class="error-message"></div>
+    
+    <form id="post-form" class="admin-form">
+      <!-- Título PT/EN -->
+      <div class="form-group">
+        <label>Título *</label>
+        <div class="lang-tabs">
+          <button type="button" class="lang-tab active" onclick="switchLangTab('title', 'PT')">PT</button>
+          <button type="button" class="lang-tab" onclick="switchLangTab('title', 'EN')">EN</button>
+        </div>
+        <div id="title-PT-field" class="lang-field active">
+          <input type="text" id="titlePT" placeholder="Título em Português" required>
+        </div>
+        <div id="title-EN-field" class="lang-field">
+          <input type="text" id="titleEN" placeholder="Title in English">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="date">Data *</label>
+        <input type="date" id="date" name="date" required>
+      </div>
+
+      <!-- Imagens -->
+      <div class="form-group">
+        <label>Imagens * <span class="image-limit">(mínimo 1, máximo 15)</span></label>
+        <div class="drag-hint">Arraste para reordenar as imagens</div>
+        <div class="images-container" id="images-container">
+          <!-- Images will be added here -->
+        </div>
+        <input type="file" id="image-input" accept="image/*" multiple style="display: none;">
+      </div>
+
+      <!-- Legenda PT/EN -->
+      <div class="form-group">
+        <label>Legenda das imagens</label>
+        <div class="lang-tabs">
+          <button type="button" class="lang-tab active" onclick="switchLangTab('caption', 'PT')">PT</button>
+          <button type="button" class="lang-tab" onclick="switchLangTab('caption', 'EN')">EN</button>
+        </div>
+        <div id="caption-PT-field" class="lang-field active">
+          <input type="text" id="imageCaptionPT" placeholder="Ex: Óleo sobre tela, 120x150cm">
+        </div>
+        <div id="caption-EN-field" class="lang-field">
+          <input type="text" id="imageCaptionEN" placeholder="Ex: Oil on canvas, 120x150cm">
+        </div>
+        <div class="caption-alignment">
+          <label><input type="radio" name="captionAlign" value="right" checked> Alinhar à direita</label>
+        </div>
+      </div>
+
+      <!-- Campos específicos para Works -->
+      <div id="works-fields" class="section-fields">
+        <h4>Campos específicos para Works</h4>
+        <div class="field-row">
+          <div class="form-group">
+            <label>Série (PT)</label>
+            <input type="text" id="seriePT" placeholder="Ex: Formas Fugidias">
+          </div>
+          <div class="form-group">
+            <label>Série (EN)</label>
+            <input type="text" id="serieEN" placeholder="Ex: Fugitive Forms">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="form-group">
+            <label>Técnica (PT)</label>
+            <input type="text" id="tecnicaPT" placeholder="Ex: Óleo sobre tela">
+          </div>
+          <div class="form-group">
+            <label>Técnica (EN)</label>
+            <input type="text" id="tecnicaEN" placeholder="Ex: Oil on canvas">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="form-group">
+            <label>Dimensões</label>
+            <input type="text" id="dimensoes" placeholder="Ex: 120x150cm">
+          </div>
+          <div class="form-group">
+            <label>Ano</label>
+            <input type="text" id="ano" placeholder="Ex: 2024">
+          </div>
+        </div>
+      </div>
+
+      <!-- Campos específicos para Exhibitions -->
+      <div id="exhibitions-fields" class="section-fields">
+        <h4>Campos específicos para Exhibitions</h4>
+        <div class="field-row">
+          <div class="form-group">
+            <label>Local (PT)</label>
+            <input type="text" id="localPT" placeholder="Ex: Massapê Projetos">
+          </div>
+          <div class="form-group">
+            <label>Local (EN)</label>
+            <input type="text" id="localEN" placeholder="Ex: Massapê Projetos">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="form-group">
+            <label>Cidade</label>
+            <input type="text" id="cidade" placeholder="Ex: São Paulo">
+          </div>
+          <div class="form-group">
+            <label>País (PT)</label>
+            <input type="text" id="paisPT" placeholder="Ex: Brasil">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>País (EN)</label>
+          <input type="text" id="paisEN" placeholder="Ex: Brazil">
+        </div>
+      </div>
+
+      <!-- Tags -->
+      <div class="form-group">
+        <label>Tags</label>
+        <div class="tags-input-container" onclick="document.getElementById('tags-input').focus()">
+          <div id="tags-list"></div>
+          <input type="text" id="tags-input" class="tags-input" placeholder="Digite uma tag e pressione Enter">
+        </div>
+        <div class="tags-suggestions" id="tags-suggestions">
+          <span>Clique para adicionar:</span>
+          <!-- Suggestions will be loaded here -->
+        </div>
+      </div>
+
+      <!-- Descrição PT/EN -->
+      <div class="form-group">
+        <label>Descrição *</label>
+        <div class="lang-tabs">
+          <button type="button" class="lang-tab active" onclick="switchLangTab('desc', 'PT')">PT</button>
+          <button type="button" class="lang-tab" onclick="switchLangTab('desc', 'EN')">EN</button>
+        </div>
+        
+        <!-- PT Description -->
+        <div id="desc-PT-field" class="lang-field active">
+          <div class="rte-toolbar">
+            <button type="button" onclick="formatDoc('bold', 'descPT')" title="Negrito"><b>B</b></button>
+            <button type="button" onclick="formatDoc('italic', 'descPT')" title="Itálico"><i>I</i></button>
+            <button type="button" onclick="formatDoc('underline', 'descPT')" title="Sublinhado"><u>U</u></button>
+            <div class="separator"></div>
+            <button type="button" onclick="formatDoc('justifyLeft', 'descPT')" title="Esquerda">←</button>
+            <button type="button" onclick="formatDoc('justifyCenter', 'descPT')" title="Centro">↔</button>
+            <button type="button" onclick="formatDoc('justifyRight', 'descPT')" title="Direita">→</button>
+            <div class="separator"></div>
+            <button type="button" onclick="formatDoc('insertUnorderedList', 'descPT')" title="Lista">• Lista</button>
+            <button type="button" onclick="formatDoc('insertOrderedList', 'descPT')" title="Lista numerada">1. Lista</button>
+            <div class="separator"></div>
+            <select onchange="formatDoc('formatBlock', this.value, 'descPT'); this.value='';" title="Cabeçalho">
+              <option value="">Título</option>
+              <option value="H2">H2</option>
+              <option value="H3">H3</option>
+              <option value="H4">H4</option>
+            </select>
+            <div class="separator"></div>
+            <button type="button" onclick="insertLink('descPT')" title="Inserir link">🔗 Link</button>
+            <div class="separator"></div>
+            <button type="button" onclick="formatDoc('formatBlock', 'blockquote', 'descPT')" title="Citação">" Citação</button>
+            <button type="button" onclick="formatDoc('insertHorizontalRule', 'descPT')" title="Linha divisória">— Linha</button>
+            <div class="separator"></div>
+            <button type="button" class="clear-btn" onclick="clearFormatting('descPT')" title="Limpar formatação">✕ Limpar</button>
+          </div>
+          <div id="rte-description-PT" class="rte-content" contenteditable="true" placeholder="Digite a descrição em português..."></div>
+        </div>
+        
+        <!-- EN Description -->
+        <div id="desc-EN-field" class="lang-field">
+          <div class="rte-toolbar">
+            <button type="button" onclick="formatDoc('bold', 'descEN')" title="Negrito"><b>B</b></button>
+            <button type="button" onclick="formatDoc('italic', 'descEN')" title="Itálico"><i>I</i></button>
+            <button type="button" onclick="formatDoc('underline', 'descEN')" title="Sublinhado"><u>U</u></button>
+            <div class="separator"></div>
+            <button type="button" onclick="formatDoc('justifyLeft', 'descEN')" title="Esquerda">←</button>
+            <button type="button" onclick="formatDoc('justifyCenter', 'descEN')" title="Centro">↔</button>
+            <button type="button" onclick="formatDoc('justifyRight', 'descEN')" title="Direita">→</button>
+            <div class="separator"></div>
+            <button type="button" onclick="formatDoc('insertUnorderedList', 'descEN')" title="Lista">• Lista</button>
+            <button type="button" onclick="formatDoc('insertOrderedList', 'descEN')" title="Lista numerada">1. Lista</button>
+            <div class="separator"></div>
+            <select onchange="formatDoc('formatBlock', this.value, 'descEN'); this.value='';" title="Cabeçalho">
+              <option value="">Título</option>
+              <option value="H2">H2</option>
+              <option value="H3">H3</option>
+              <option value="H4">H4</option>
+            </select>
+            <div class="separator"></div>
+            <button type="button" onclick="insertLink('descEN')" title="Inserir link">🔗 Link</button>
+            <div class="separator"></div>
+            <button type="button" onclick="formatDoc('formatBlock', 'blockquote', 'descEN')" title="Citação">" Citação</button>
+            <button type="button" onclick="formatDoc('insertHorizontalRule', 'descEN')" title="Linha divisória">— Linha</button>
+            <div class="separator"></div>
+            <button type="button" class="clear-btn" onclick="clearFormatting('descEN')" title="Limpar formatação">✕ Limpar</button>
+          </div>
+          <div id="rte-description-EN" class="rte-content" contenteditable="true" placeholder="Type the description in English..."></div>
+        </div>
+      </div>
+
+      <div class="admin-form-actions">
+        <button type="button" class="btn-secondary" onclick="goBack()">Cancelar</button>
+        <button type="submit" class="btn-primary" style="width: auto;">Salvar</button>
+      </div>
+    </form>
+  </main>
+
+  <script src="../js/main.js"></script>
+  <script>
+    // Check auth
+    if (!CMS.checkAdminAuth()) {
+      window.location.href = 'index.html';
+    }
+
+    // Get params from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const section = urlParams.get('section');
+    const postId = urlParams.get('id');
+
+    const sectionLabels = {
+      'news': 'News',
+      'works': 'Works',
+      'exhibitions': 'Exhibitions',
+      'texts': 'Texts',
+      'photo-album': 'Photo Album'
+    };
+
+    if (!section || !sectionLabels[section]) {
+      window.location.href = 'dashboard.html';
+    }
+
+    document.getElementById('section-name').textContent = sectionLabels[section];
+
+    let images = [];
+    let tags = [];
+    const MAX_IMAGES = 15;
+    const MIN_IMAGES = 1;
+
+    // Show section-specific fields
+    if (section === 'works') {
+      document.getElementById('works-fields').classList.add('active');
+    } else if (section === 'exhibitions') {
+      document.getElementById('exhibitions-fields').classList.add('active');
+    }
+
+    // Language tab switching
+    function switchLangTab(field, lang) {
+      // Update tabs
+      document.querySelectorAll(`.lang-tab[onclick*="'${field}'"]`).forEach(tab => {
+        tab.classList.toggle('active', tab.textContent === lang);
+      });
+      
+      // Update fields
+      document.querySelectorAll(`[id^="${field}-"]`).forEach(f => {
+        f.classList.remove('active');
+      });
+      document.getElementById(`${field}-${lang}-field`).classList.add('active');
+    }
+
+    // Rich Text Editor functions
+    function formatDoc(cmd, field) {
+      const editor = document.getElementById(`rte-description-${field === 'descPT' ? 'PT' : 'EN'}`);
+      editor.focus();
+      document.execCommand(cmd, false, null);
+    }
+
+    function insertLink(field) {
+      const url = prompt('Digite a URL do link:');
+      if (url) {
+        const editor = document.getElementById(`rte-description-${field === 'descPT' ? 'PT' : 'EN'}`);
+        editor.focus();
+        document.execCommand('createLink', false, url);
+      }
+    }
+
+    function clearFormatting(field) {
+      const editor = document.getElementById(`rte-description-${field === 'descPT' ? 'PT' : 'EN'}`);
+      editor.focus();
+      document.execCommand('removeFormat', false, null);
+      document.execCommand('formatBlock', false, 'P');
+    }
+
+    // Tags functionality
+    function renderTags() {
+      const container = document.getElementById('tags-list');
+      container.innerHTML = tags.map((tag, index) => `
+        <span class="tag-item">
+          ${tag}
+          <button type="button" onclick="removeTag(${index})">×</button>
+        </span>
+      `).join('');
+    }
+
+    function removeTag(index) {
+      tags.splice(index, 1);
+      renderTags();
+    }
+
+    function addTag(tag) {
+      tag = tag.trim().toLowerCase();
+      if (tag && !tags.includes(tag)) {
+        tags.push(tag);
+        renderTags();
+      }
+    }
+
+    // Load existing tags for suggestions
+    function loadTagSuggestions() {
+      const allTags = CMS.getTags();
+      const container = document.getElementById('tags-suggestions');
+      const availableTags = allTags.filter(t => !tags.includes(t));
+      
+      if (availableTags.length > 0) {
+        container.innerHTML = '<span>Clique para adicionar:</span>' + 
+          availableTags.map(tag => `<span onclick="addTag('${tag}')">${tag}</span>`).join('');
+      } else {
+        container.innerHTML = '';
+      }
+    }
+
+    document.getElementById('tags-input').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addTag(this.value);
+        this.value = '';
+      }
+    });
+
+    // Load post if editing
+    if (postId) {
+      const post = CMS.getPostById(postId);
+      if (post) {
+        document.getElementById('page-title').textContent = 'Editar Post';
+        
+        // Load bilingual titles
+        document.getElementById('titlePT').value = post.titlePT || '';
+        document.getElementById('titleEN').value = post.titleEN || '';
+        
+        document.getElementById('date').value = post.date;
+        
+        // Load bilingual captions
+        document.getElementById('imageCaptionPT').value = post.imageCaptionPT || '';
+        document.getElementById('imageCaptionEN').value = post.imageCaptionEN || '';
+        
+        // Set caption alignment
+        if (post.captionAlign === 'right') {
+          document.querySelector('input[name="captionAlign"][value="right"]').checked = true;
+        }
+        
+        // Load bilingual descriptions
+        if (post.descriptionPT) {
+          document.getElementById('rte-description-PT').innerHTML = post.descriptionPT;
+        }
+        if (post.descriptionEN) {
+          document.getElementById('rte-description-EN').innerHTML = post.descriptionEN;
+        }
+        
+        // Load images
+        if (post.images && post.images.length > 0) {
+          images = [...post.images];
+        } else if (post.imageUrl) {
+          images = [post.imageUrl];
+        }
+        
+        // Load tags
+        if (post.tags) {
+          tags = [...post.tags];
+          renderTags();
+        }
+        
+        // Load section-specific fields
+        if (section === 'works') {
+          document.getElementById('seriePT').value = post.seriePT || '';
+          document.getElementById('serieEN').value = post.serieEN || '';
+          document.getElementById('tecnicaPT').value = post.tecnicaPT || '';
+          document.getElementById('tecnicaEN').value = post.tecnicaEN || '';
+          document.getElementById('dimensoes').value = post.dimensoes || '';
+          document.getElementById('ano').value = post.ano || '';
+        } else if (section === 'exhibitions') {
+          document.getElementById('localPT').value = post.localPT || '';
+          document.getElementById('localEN').value = post.localEN || '';
+          document.getElementById('cidade').value = post.cidade || '';
+          document.getElementById('paisPT').value = post.paisPT || '';
+          document.getElementById('paisEN').value = post.paisEN || '';
+        }
+        
+        renderImages();
+        loadTagSuggestions();
+      }
+    } else {
+      // Set default date for new post
+      document.getElementById('date').value = new Date().toISOString().split('T')[0];
+      renderImages();
+      loadTagSuggestions();
+    }
+
+    function renderImages() {
+      const container = document.getElementById('images-container');
+      
+      let html = images.map((img, index) => `
+        <div class="image-item" draggable="true" data-index="${index}">
+          <span class="order-num">${index + 1}</span>
+          <img src="${img}" alt="Imagem ${index + 1}">
+          <button type="button" class="remove-btn" onclick="removeImage(${index})">×</button>
+        </div>
+      `).join('');
+
+      // Add button to add more images
+      if (images.length < MAX_IMAGES) {
+        html += `
+          <div class="add-image-btn" onclick="document.getElementById('image-input').click()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span style="font-size: 12px; margin-top: 4px;">Adicionar</span>
+          </div>
+        `;
+      }
+
+      container.innerHTML = html;
+      
+      // Setup drag and drop
+      setupDragAndDrop();
+    }
+
+    function setupDragAndDrop() {
+      const items = document.querySelectorAll('.image-item');
+      let draggedItem = null;
+
+      items.forEach(item => {
+        item.addEventListener('dragstart', function(e) {
+          draggedItem = this;
+          this.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+        });
+
+        item.addEventListener('dragend', function() {
+          this.classList.remove('dragging');
+          draggedItem = null;
+        });
+
+        item.addEventListener('dragover', function(e) {
+          e.preventDefault();
+          if (this === draggedItem) return;
+          
+          const container = document.getElementById('images-container');
+          const afterElement = getDragAfterElement(container, e.clientX, e.clientY);
+          
+          if (afterElement) {
+            container.insertBefore(draggedItem, afterElement);
+          } else {
+            container.insertBefore(draggedItem, container.lastElementChild);
+          }
+        });
+
+        item.addEventListener('drop', function(e) {
+          e.preventDefault();
+          updateImagesOrder();
+        });
+      });
+    }
+
+    function getDragAfterElement(container, x, y) {
+      const draggableElements = [...container.querySelectorAll('.image-item:not(.dragging)')];
+      
+      return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offsetX = x - box.left - box.width / 2;
+        const offsetY = y - box.top - box.height / 2;
+        const offset = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
+        
+        if (offset < closest.offset) {
+          return { offset: offset, element: child };
+        } else {
+          return closest;
+        }
+      }, { offset: Number.POSITIVE_INFINITY }).element;
+    }
+
+    function updateImagesOrder() {
+      const items = document.querySelectorAll('.image-item');
+      const newOrder = [];
+      items.forEach(item => {
+        const index = parseInt(item.dataset.index);
+        newOrder.push(images[index]);
+      });
+      images = newOrder;
+      renderImages();
+    }
+
+    function removeImage(index) {
+      if (images.length <= MIN_IMAGES) {
+        showError('É necessário ter pelo menos 1 imagem.');
+        return;
+      }
+      images.splice(index, 1);
+      renderImages();
+    }
+
+    function showError(msg) {
+      const errorDiv = document.getElementById('error-message');
+      errorDiv.textContent = msg;
+      errorDiv.style.display = 'block';
+      setTimeout(() => errorDiv.style.display = 'none', 5000);
+    }
+
+    function showSuccess(msg) {
+      const successDiv = document.getElementById('success-message');
+      successDiv.textContent = msg;
+      successDiv.style.display = 'block';
+      setTimeout(() => successDiv.style.display = 'none', 3000);
+    }
+
+    // Handle image file upload
+    document.getElementById('image-input').addEventListener('change', function(e) {
+      const files = Array.from(e.target.files);
+      
+      if (images.length + files.length > MAX_IMAGES) {
+        showError(`Você pode adicionar no máximo ${MAX_IMAGES} imagens.`);
+        return;
+      }
+
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          images.push(event.target.result);
+          renderImages();
+        };
+        reader.readAsDataURL(file);
+      });
+      
+      // Reset input
+      this.value = '';
+    });
+
+    function goBack() {
+      window.location.href = 'posts.html?section=' + section;
+    }
+
+    // Handle form submission
+    document.getElementById('post-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      if (images.length < MIN_IMAGES) {
+        showError('É necessário adicionar pelo menos 1 imagem.');
+        return;
+      }
+      
+      // Get HTML content from rich text editors
+      const descPT = document.getElementById('rte-description-PT').innerHTML.trim();
+      const descEN = document.getElementById('rte-description-EN').innerHTML.trim();
+      
+      if (!descPT || descPT === '<br>') {
+        showError('A descrição em português é obrigatória.');
+        document.getElementById('rte-description-PT').focus();
+        return;
+      }
+      
+      // Get caption alignment
+      const captionAlign = document.querySelector('input[name="captionAlign"]:checked').value;
+      
+      const postData = {
+        // Bilingual fields
+        titlePT: document.getElementById('titlePT').value.trim(),
+        titleEN: document.getElementById('titleEN').value.trim(),
+        date: document.getElementById('date').value,
+        images: images,
+        imageUrl: images[0],
+        imageCaptionPT: document.getElementById('imageCaptionPT').value.trim(),
+        imageCaptionEN: document.getElementById('imageCaptionEN').value.trim(),
+        captionAlign: captionAlign,
+        descriptionPT: descPT,
+        descriptionEN: descEN,
+        section: section,
+        tags: tags,
+        status: 'published'
+      };
+
+      // Add section-specific fields
+      if (section === 'works') {
+        const seriePT = document.getElementById('seriePT');
+        const serieEN = document.getElementById('serieEN');
+        const tecnicaPT = document.getElementById('tecnicaPT');
+        const tecnicaEN = document.getElementById('tecnicaEN');
+        const dimensoes = document.getElementById('dimensoes');
+        const ano = document.getElementById('ano');
+        if (seriePT) postData.seriePT = seriePT.value.trim();
+        if (serieEN) postData.serieEN = serieEN.value.trim();
+        if (tecnicaPT) postData.tecnicaPT = tecnicaPT.value.trim();
+        if (tecnicaEN) postData.tecnicaEN = tecnicaEN.value.trim();
+        if (dimensoes) postData.dimensoes = dimensoes.value.trim();
+        if (ano) postData.ano = ano.value.trim();
+      } else if (section === 'exhibitions') {
+        const localPT = document.getElementById('localPT');
+        const localEN = document.getElementById('localEN');
+        const cidade = document.getElementById('cidade');
+        const paisPT = document.getElementById('paisPT');
+        const paisEN = document.getElementById('paisEN');
+        if (localPT) postData.localPT = localPT.value.trim();
+        if (localEN) postData.localEN = localEN.value.trim();
+        if (cidade) postData.cidade = cidade.value.trim();
+        if (paisPT) postData.paisPT = paisPT.value.trim();
+        if (paisEN) postData.paisEN = paisEN.value.trim();
+      }
+
+      try {
+        if (postId) {
+          CMS.updatePost(postId, postData);
+        } else {
+          CMS.addPost(postData);
+        }
+        
+        // Update global tags
+        const data = CMS.getData();
+        const allTags = new Set([...data.tags, ...tags]);
+        data.tags = Array.from(allTags);
+        CMS.saveData(data);
+        
+        showSuccess('Post salvo com sucesso!');
+        
+        // Redirect after showing success message
+        setTimeout(() => {
+          window.location.href = 'posts.html?section=' + section;
+        }, 1500);
+      } catch (err) {
+        console.error('Erro ao salvar:', err);
+        showError('Erro ao salvar. Tente novamente.');
+      }
+    });
+  </script>
+</body>
+</html>

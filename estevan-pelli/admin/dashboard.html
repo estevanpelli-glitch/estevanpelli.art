@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Admin - Estevan Pelli</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="admin-body">
+  <!-- Admin Header -->
+  <header class="admin-header">
+    <div>
+      <h1>ESTEVAN PELLI</h1>
+      <p>Painel Administrativo</p>
+    </div>
+    <div style="display: flex; align-items: center; gap: 24px;">
+      <a href="../index.html" style="color: var(--estevan-blue); text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 6px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+        Ver site
+      </a>
+      <a href="#" class="admin-logout" onclick="logout(); return false;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+        <polyline points="16 17 21 12 16 7"></polyline>
+        <line x1="21" y1="12" x2="9" y2="12"></line>
+      </svg>
+      Sair
+    </a>
+  </header>
+
+  <!-- Main Content -->
+  <main class="admin-main">
+    <h2 style="margin-bottom: 24px;">Seções</h2>
+    
+    <div class="admin-sections">
+      <a href="posts.html?section=news" class="admin-section-card">
+        <h3>News</h3>
+        <p id="news-count">0 posts</p>
+      </a>
+      
+      <a href="posts.html?section=works" class="admin-section-card">
+        <h3>Works</h3>
+        <p id="works-count">0 posts</p>
+      </a>
+      
+      <a href="posts.html?section=exhibitions" class="admin-section-card">
+        <h3>Exhibitions</h3>
+        <p id="exhibitions-count">0 posts</p>
+      </a>
+      
+      <a href="posts.html?section=texts" class="admin-section-card">
+        <h3>Texts</h3>
+        <p id="texts-count">0 posts</p>
+      </a>
+      
+      <a href="posts.html?section=photo-album" class="admin-section-card">
+        <h3>Photo Album</h3>
+        <p id="photo-album-count">0 posts</p>
+      </a>
+    </div>
+
+    <!-- Slideshow -->
+    <div style="margin-top: 32px;">
+      <h2 style="margin-bottom: 16px;">Outros</h2>
+      <div class="admin-sections">
+        <a href="slideshow.html" class="admin-section-card">
+          <h3>Slideshow da Home</h3>
+          <p>Gerenciar imagens do slideshow</p>
+        </a>
+        <a href="configuracoes.html" class="admin-section-card">
+          <h3>Configurações</h3>
+          <p>Alterar login e senha</p>
+        </a>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div style="margin-top: 48px; background: white; border-radius: 8px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+      <h3 style="margin-bottom: 16px;">Resumo</h3>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 16px; text-align: center;">
+        <div>
+          <p style="font-size: 32px; font-weight: bold; color: var(--estevan-blue);" id="total-count">0</p>
+          <p style="font-size: 14px; color: #666;">Total de posts</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../js/main.js"></script>
+  <script>
+    // Check auth
+    if (!CMS.checkAdminAuth()) {
+      window.location.href = 'index.html';
+    }
+
+    function logout() {
+      CMS.logout();
+      window.location.href = 'index.html';
+    }
+
+    // Update counts
+    function updateCounts() {
+      const sections = ['news', 'works', 'exhibitions', 'texts', 'photo-album'];
+      let total = 0;
+      
+      sections.forEach(section => {
+        const posts = CMS.getPostsBySection(section);
+        const countEl = document.getElementById(section + '-count');
+        if (countEl) {
+          countEl.textContent = posts.length + ' ' + (posts.length === 1 ? 'post' : 'posts');
+        }
+        total += posts.length;
+      });
+      
+      document.getElementById('total-count').textContent = total;
+    }
+
+    document.addEventListener('DOMContentLoaded', updateCounts);
+  </script>
+</body>
+</html>
