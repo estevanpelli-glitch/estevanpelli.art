@@ -1,12 +1,18 @@
 /**
  * CMS Client-side - Lê dados JSON do GitHub/Netlify
  * Usado nas páginas públicas (news.html, works.html, etc.)
+ * Versão compatível com CMS existente no main.js
  */
 
-const CMS = {
+// Se CMS já existe (do main.js), estende-o. Se não, cria novo.
+if (typeof window.CMS === 'undefined') {
+  window.CMS = {};
+}
+
+// Adiciona/atualiza métodos específicos para o site público
+Object.assign(window.CMS, {
   data: null,
   settings: null,
-  lang: 'PT',
   
   async init() {
     try {
@@ -50,7 +56,7 @@ const CMS = {
   },
   
   getLang() {
-    return this.lang;
+    return this.lang || localStorage.getItem('estevanLang') || 'PT';
   },
   
   setLang(lang) {
@@ -65,11 +71,13 @@ const CMS = {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return date.toLocaleDateString(lang === 'PT' ? 'pt-BR' : 'en-US', options);
   }
-};
+});
 
-// Auto-inicializa quando DOM estiver pronto
+// Auto-inicializa quando DOM estiver pronto (só se ainda não tiver dados)
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => CMS.init());
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!window.CMS.data) window.CMS.init();
+  });
 } else {
-  CMS.init();
+  if (!window.CMS.data) window.CMS.init();
 }
