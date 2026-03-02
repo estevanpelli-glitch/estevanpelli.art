@@ -23,7 +23,7 @@
           <input type="password" id="password" name="password" required placeholder="Digite sua senha">
         </div>
         
-        <div id="error-message" class="error-message" style="display: none;"></div>
+        <div id="error-message" class="error-message" style="display: none; color: #dc3545; margin-bottom: 16px; font-size: 14px;"></div>
         
         <button type="submit" class="btn-primary">Entrar</button>
       </form>
@@ -31,24 +31,56 @@
   </div>
 
   <script src="../js/main.js"></script>
+  <script src="js/api-client.js"></script>
+  
   <script>
-    // Check if already logged in
-    if (CMS.checkAdminAuth()) {
+    // Verifica se já está logado (API nova ou CMS antigo)
+    const isLoggedIn = API.checkAuth() || (typeof CMS !== 'undefined' && CMS.checkAdminAuth && CMS.checkAdminAuth());
+    
+    if (isLoggedIn) {
       window.location.href = 'dashboard.html';
     }
 
-    document.getElementById('login-form').addEventListener('submit', function(e) {
+    document.getElementById('login-form').addEventListener('submit', async function(e) {
       e.preventDefault();
       
       const username = document.getElementById('username').value;
       const password = document.getElementById('password').value;
       const errorDiv = document.getElementById('error-message');
+      const submitBtn = document.querySelector('button[type="submit"]');
       
-      if (CMS.login(username, password)) {
+      submitBtn.textContent = 'Entrando...';
+      submitBtn.disabled = true;
+      errorDiv.style.display = 'none';
+      
+      let loginSuccess = false;
+      
+      try {
+        // Tenta API do Netlify primeiro
+        const result = await API.login(username, password);
+        if (result.success) {
+          loginSuccess = true;
+        }
+      } catch (e) {
+        console.log('Netlify não disponível, usando login local...');
+      }
+      
+      // Se falhou na API, tenta CMS local (fallback)
+      if (!loginSuccess && typeof CMS !== 'undefined' && CMS.login) {
+        if (CMS.login(username, password)) {
+          // Sincroniza: cria token fake para API também
+          sessionStorage.setItem('adminToken', 'local-fallback-token');
+          loginSuccess = true;
+        }
+      }
+      
+      if (loginSuccess) {
         window.location.href = 'dashboard.html';
       } else {
         errorDiv.textContent = 'Usuário ou senha incorretos';
         errorDiv.style.display = 'block';
+        submitBtn.textContent = 'Entrar';
+        submitBtn.disabled = false;
       }
     });
   </script>

@@ -1,0 +1,26 @@
+[build]
+  publish = "."                    # Publica da raiz (onde estão seus HTMLs)
+  functions = "netlify/functions"  # Pasta das functions
+
+[build.environment]
+  NODE_VERSION = "18"              # Versão do Node.js
+
+# Redireciona /api/* para as functions (URLs amigáveis)
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+# CORS para permitir chamadas do admin
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, Authorization"
+
+# Cache para dados JSON (atualiza a cada 1 minuto)
+[[headers]]
+  for = "/data/*"
+  [headers.values]
+    Cache-Control = "public, max-age=60"
