@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Posts - Admin</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .admin-header {
+      background: #0000ff;
+      color: white;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .admin-header a { color: white; text-decoration: none; }
+    
+    .container {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    
+    .post-item {
+      background: white;
+      padding: 20px;
+      margin-bottom: 16px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .post-info h4 { margin-bottom: 4px; }
+    .post-info p { color: #666; font-size: 13px; margin: 0; }
+    
+    .post-thumb {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 4px;
+      margin-right: 16px;
+    }
+    
+    .actions {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .btn-edit, .btn-delete {
+      padding: 8px 16px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 13px;
+      border: none;
+      cursor: pointer;
+    }
+    .btn-edit {
+      background: white;
+      color: #0000ff;
+      border: 1px solid #0000ff;
+    }
+    .btn-delete {
+      background: #dc3545;
+      color: white;
+    }
+    
+    .empty {
+      text-align: center;
+      padding: 60px;
+      color: #666;
+    }
+    
+    .fab {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: #0000ff;
+      color: white;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(0,0,255,0.3);
+    }
+  </style>
+</head>
+<body style="background: #f5f5f5; margin: 0;">
+  <header class="admin-header">
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <a href="dashboard.html">← Voltar</a>
+      <h2 id="titulo-secao" style="margin: 0;">Posts</h2>
+    </div>
+    <a href="../index.html">Ver site</a>
+  </header>
+
+  <div class="container">
+    <div id="lista-posts"></div>
+  </div>
+
+  <a href="#" id="btn-novo" class="fab">+</a>
+
+  <script src="../js/cms.js"></script>
+  
+  <script>
+    if (!CMS.checkAdminAuth()) window.location.href = 'index.html';
+    
+    const params = new URLSearchParams(window.location.search);
+    const section = params.get('section') || 'news';
+    
+    const nomes = {
+      news: 'News',
+      works: 'Works', 
+      exhibitions: 'Exhibitions',
+      texts: 'Texts',
+      'photo-album': 'Photo Album'
+    };
+    
+    document.getElementById('titulo-secao').textContent = nomes[section] || 'Posts';
+    document.getElementById('btn-novo').href = 'edit.html?section=' + section;
+    
+    function loadPosts() {
+      const posts = CMS.getPostsBySection(section).sort((a,b) => new Date(b.date) - new Date(a.date));
+      const container = document.getElementById('lista-posts');
+      
+      if (posts.length === 0) {
+        container.innerHTML = `
+          <div class="empty">
+            <p>Nenhum post ainda.</p>
+            <a href="edit.html?section=${section}" style="color: #0000ff;">Criar primeiro post</a>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = posts.map(post => `
+        <div class="post-item">
+          <div style="display: flex; align-items: center;">
+            ${post.imageUrl ? `<img src="${post.imageUrl}" class="post-thumb">` : ''}
+            <div class="post-info">
+              <h4>${post.titlePT || 'Sem título'}</h4>
+              <p>${new Date(post.date).toLocaleDateString('pt-BR')} • ${post.status}</p>
+            </div>
+          </div>
+          <div class="actions">
+            <a href="edit.html?section=${section}&id=${post.id}" class="btn-edit">Editar</a>
+            <button onclick="deletar('${post.id}')" class="btn-delete">Excluir</button>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    function deletar(id) {
+      if (!confirm('Excluir este post?')) return;
+      CMS.deletePost(id);
+      loadPosts();
+    }
+    
+    loadPosts();
+  </script>
+</body>
+</html>

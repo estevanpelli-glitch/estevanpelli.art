@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editar Post - Admin</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .admin-header {
+      background: #0000ff;
+      color: white;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .admin-header a { color: white; text-decoration: none; }
+    
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    
+    .form-group {
+      margin-bottom: 24px;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    
+    .form-group input[type="text"],
+    .form-group input[type="date"],
+    .form-group textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+    
+    .form-group textarea {
+      min-height: 200px;
+      resize: vertical;
+    }
+    
+    .lang-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    
+    .lang-tab {
+      padding: 8px 16px;
+      background: #f5f5f5;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    
+    .lang-tab.active {
+      background: #0000ff;
+      color: white;
+      border-color: #0000ff;
+    }
+    
+    .image-preview {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 4px;
+      margin-right: 8px;
+      margin-bottom: 8px;
+    }
+    
+    .btn-save {
+      background: #0000ff;
+      color: white;
+      border: none;
+      padding: 16px 32px;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 16px;
+      width: 100%;
+    }
+    
+    .success {
+      background: #d4edda;
+      color: #155724;
+      padding: 16px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      display: none;
+    }
+  </style>
+</head>
+<body style="background: #f5f5f5; margin: 0; padding-bottom: 100px;">
+  <header class="admin-header">
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <a href="#" onclick="history.back(); return false;">← Voltar</a>
+      <h2 id="titulo" style="margin: 0;">Novo Post</h2>
+    </div>
+  </header>
+
+  <div class="container">
+    <div id="success" class="success">Post salvo com sucesso!</div>
+    
+    <form id="form-post">
+      <!-- Título PT -->
+      <div class="form-group">
+        <label>Título (Português) *</label>
+        <input type="text" id="titulo-pt" required placeholder="Digite o título em português">
+      </div>
+      
+      <!-- Título EN -->
+      <div class="form-group">
+        <label>Título (English)</label>
+        <input type="text" id="titulo-en" placeholder="Digite o título em inglês">
+      </div>
+      
+      <!-- Data -->
+      <div class="form-group">
+        <label>Data *</label>
+        <input type="date" id="data" required>
+      </div>
+      
+      <!-- Imagens -->
+      <div class="form-group">
+        <label>Imagens</label>
+        <input type="file" id="imagens" accept="image/*" multiple style="margin-bottom: 12px;">
+        <div id="preview-imagens"></div>
+        <input type="hidden" id="imagens-base64">
+      </div>
+      
+      <!-- Descrição PT -->
+      <div class="form-group">
+        <label>Descrição (Português) *</label>
+        <textarea id="desc-pt" required placeholder="Digite a descrição em português..."></textarea>
+      </div>
+      
+      <!-- Descrição EN -->
+      <div class="form-group">
+        <label>Descrição (English)</label>
+        <textarea id="desc-en" placeholder="Digite a descrição em inglês..."></textarea>
+      </div>
+      
+      <!-- Tags -->
+      <div class="form-group">
+        <label>Tags (separadas por vírgula)</label>
+        <input type="text" id="tags" placeholder="ex: exposicao, 2024, pintura">
+      </div>
+      
+      <button type="submit" class="btn-save">SALVAR POST</button>
+    </form>
+  </div>
+
+  <script src="../js/cms.js"></script>
+  
+  <script>
+    if (!CMS.checkAdminAuth()) window.location.href = 'index.html';
+    
+    const params = new URLSearchParams(window.location.search);
+    const section = params.get('section') || 'news';
+    const postId = params.get('id');
+    
+    let postEditando = null;
+    let imagensArray = [];
+    
+    // Se estiver editando, carrega dados
+    if (postId) {
+      postEditando = CMS.getPostById(postId);
+      if (postEditando) {
+        document.getElementById('titulo').textContent = 'Editar Post';
+        document.getElementById('titulo-pt').value = postEditando.titlePT || '';
+        document.getElementById('titulo-en').value = postEditando.titleEN || '';
+        document.getElementById('data').value = postEditando.date || '';
+        document.getElementById('desc-pt').value = postEditando.descriptionPT || '';
+        document.getElementById('desc-en').value = postEditando.descriptionEN || '';
+        document.getElementById('tags').value = (postEditando.tags || []).join(', ');
+        
+        if (postEditando.images) {
+          imagensArray = [...postEditando.images];
+          mostrarPreview();
+        }
+      }
+    } else {
+      document.getElementById('data').value = new Date().toISOString().split('T')[0];
+    }
+    
+    // Preview de imagens
+    document.getElementById('imagens').addEventListener('change', function(e) {
+      const files = Array.from(e.target.files);
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          imagensArray.push(evt.target.result);
+          mostrarPreview();
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+    
+    function mostrarPreview() {
+      const div = document.getElementById('preview-imagens');
+      div.innerHTML = imagensArray.map((img, i) => `
+        <img src="${img}" class="image-preview" onclick="removerImagem(${i})" title="Clique para remover">
+      `).join('');
+    }
+    
+    function removerImagem(index) {
+      imagensArray.splice(index, 1);
+      mostrarPreview();
+    }
+    
+    // Salvar
+    document.getElementById('form-post').addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const post = {
+        id: postEditando?.id,
+        titlePT: document.getElementById('titulo-pt').value,
+        titleEN: document.getElementById('titulo-en').value,
+        date: document.getElementById('data').value,
+        descriptionPT: document.getElementById('desc-pt').value,
+        descriptionEN: document.getElementById('desc-en').value,
+        images: imagensArray,
+        imageUrl: imagensArray[0] || '',
+        section: section,
+        status: 'published',
+        tags: document.getElementById('tags').value.split(',').map(t => t.trim()).filter(t => t)
+      };
+      
+      CMS.savePost(post);
+      
+      document.getElementById('success').style.display = 'block';
+      setTimeout(() => {
+        window.location.href = 'posts.html?section=' + section;
+      }, 1000);
+    });
+  </script>
+</body>
+</html>

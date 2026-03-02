@@ -3,181 +3,189 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard - Admin - Estevan Pelli</title>
+  <title>Dashboard - Admin</title>
   <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .admin-header {
+      background: #0000ff;
+      color: white;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .admin-header a {
+      color: white;
+      text-decoration: none;
+      opacity: 0.8;
+    }
+    .admin-header a:hover { opacity: 1; }
+    
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 24px;
+      padding: 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .dash-card {
+      background: white;
+      padding: 24px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.2s;
+      border: 2px solid transparent;
+    }
+    .dash-card:hover {
+      transform: translateY(-2px);
+      border-color: #0000ff;
+    }
+    .dash-card h3 {
+      margin-bottom: 8px;
+      color: #0000ff;
+    }
+    .dash-card p {
+      color: #666;
+      font-size: 14px;
+    }
+    .dash-card .count {
+      font-size: 32px;
+      font-weight: bold;
+      color: #000;
+      margin-top: 16px;
+    }
+    
+    .publish-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: #0000ff;
+      color: white;
+      border: none;
+      padding: 16px 32px;
+      border-radius: 50px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,255,0.3);
+      font-size: 14px;
+    }
+    .publish-btn:hover {
+      background: #0000cc;
+    }
+    .publish-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    
+    .status-msg {
+      position: fixed;
+      bottom: 100px;
+      right: 30px;
+      background: white;
+      padding: 16px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      display: none;
+      max-width: 300px;
+    }
+  </style>
 </head>
-<body class="admin-body">
-  <!-- Admin Header -->
+<body style="background: #f5f5f5; margin: 0; font-family: 'Archivo', sans-serif;">
   <header class="admin-header">
     <div>
-      <h1>ESTEVAN PELLI</h1>
-      <p>Painel Administrativo</p>
+      <h2 style="margin: 0;">ESTEVAN PELLI</h2>
+      <small>Painel Administrativo</small>
     </div>
-    <div style="display: flex; align-items: center; gap: 24px;">
-      <a href="../index.html" style="color: var(--estevan-blue); text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 6px;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-          <polyline points="9 22 9 12 15 12 15 22"></polyline>
-        </svg>
-        Ver site
-      </a>
-      <a href="#" class="admin-logout" onclick="logout(); return false;">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-        <polyline points="16 17 21 12 16 7"></polyline>
-        <line x1="21" y1="12" x2="9" y2="12"></line>
-      </svg>
-      Sair
-    </a>
+    <div style="display: flex; gap: 24px; align-items: center;">
+      <a href="../index.html">Ver site</a>
+      <a href="#" onclick="CMS.logout(); window.location.href='index.html'; return false;">Sair</a>
+    </div>
   </header>
 
-  <!-- Main Content -->
-  <main class="admin-main">
-    <h2 style="margin-bottom: 24px;">Seções</h2>
+  <main class="dashboard-grid">
+    <a href="posts.html?section=news" class="dash-card">
+      <h3>News</h3>
+      <p>Notícias e atualizações</p>
+      <div class="count" id="count-news">0</div>
+    </a>
     
-    <div class="admin-sections">
-      <a href="posts.html?section=news" class="admin-section-card">
-        <h3>News</h3>
-        <p id="news-count">0 posts</p>
-      </a>
-      
-      <a href="posts.html?section=works" class="admin-section-card">
-        <h3>Works</h3>
-        <p id="works-count">0 posts</p>
-      </a>
-      
-      <a href="posts.html?section=exhibitions" class="admin-section-card">
-        <h3>Exhibitions</h3>
-        <p id="exhibitions-count">0 posts</p>
-      </a>
-      
-      <a href="posts.html?section=texts" class="admin-section-card">
-        <h3>Texts</h3>
-        <p id="texts-count">0 posts</p>
-      </a>
-      
-      <a href="posts.html?section=photo-album" class="admin-section-card">
-        <h3>Photo Album</h3>
-        <p id="photo-album-count">0 posts</p>
-      </a>
-    </div>
-
-    <!-- Slideshow -->
-    <div style="margin-top: 32px;">
-      <h2 style="margin-bottom: 16px;">Outros</h2>
-      <div class="admin-sections">
-        <a href="slideshow.html" class="admin-section-card">
-          <h3>Slideshow da Home</h3>
-          <p>Gerenciar imagens do slideshow</p>
-        </a>
-        <a href="configuracoes.html" class="admin-section-card">
-          <h3>Configurações</h3>
-          <p>Alterar login e senha</p>
-        </a>
-      </div>
-    </div>
-
-    <!-- Stats -->
-    <div style="margin-top: 48px; background: white; border-radius: 8px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-      <h3 style="margin-bottom: 16px;">Resumo</h3>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 16px; text-align: center;">
-        <div>
-          <p style="font-size: 32px; font-weight: bold; color: var(--estevan-blue);" id="total-count">0</p>
-          <p style="font-size: 14px; color: #666;">Total de posts</p>
-        </div>
-      </div>
-    </div>
+    <a href="posts.html?section=works" class="dash-card">
+      <h3>Works</h3>
+      <p>Obras e trabalhos</p>
+      <div class="count" id="count-works">0</div>
+    </a>
+    
+    <a href="posts.html?section=exhibitions" class="dash-card">
+      <h3>Exhibitions</h3>
+      <p>Exposições</p>
+      <div class="count" id="count-exhibitions">0</div>
+    </a>
+    
+    <a href="posts.html?section=texts" class="dash-card">
+      <h3>Texts</h3>
+      <p>Textos e ensaios</p>
+      <div class="count" id="count-texts">0</div>
+    </a>
+    
+    <a href="posts.html?section=photo-album" class="dash-card">
+      <h3>Photo Album</h3>
+      <p>Álbum de fotos</p>
+      <div class="count" id="count-photo-album">0</div>
+    </a>
   </main>
 
-  <!-- BOTÃO FLUTUANTE PUBLICAR -->
-  <div id="publish-container" style="position: fixed; bottom: 30px; right: 30px; z-index: 9999; display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
-    <div id="publish-status" style="background: white; padding: 12px 16px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: none; font-size: 13px; max-width: 300px; text-align: right;"></div>
-    <button onclick="publicarSite()" style="background: #0000ff; color: white; border: none; padding: 16px 32px; border-radius: 50px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,255,0.3); font-family: 'Archivo', sans-serif; font-size: 14px; transition: all 0.3s;">
-      🚀 PUBLICAR SITE
-    </button>
-  </div>
+  <button class="publish-btn" onclick="publicar()">🚀 PUBLICAR SITE</button>
+  <div id="status" class="status-msg"></div>
 
-    <script src="../js/main.js"></script>
+  <script src="../js/cms.js"></script>
   <script src="js/api-client.js"></script>
   
   <script>
-    // Verifica auth: API nova ou CMS antigo
-    const isLoggedIn = API.checkAuth() || (typeof CMS !== 'undefined' && CMS.checkAdminAuth && CMS.checkAdminAuth());
+    // Verifica login
+    if (!CMS.checkAdminAuth()) {
+      window.location.href = 'index.html';
+    }
     
-    if (!isLoggedIn) {
-      window.location.href = 'index.html';
-    }
-
-    function logout() {
-      API.logout();
-      if (typeof CMS !== 'undefined' && CMS.logout) CMS.logout();
-      window.location.href = 'index.html';
-    }
-
-    // Update counts
+    // Atualiza contadores
     function updateCounts() {
-      const sections = ['news', 'works', 'exhibitions', 'texts', 'photo-album'];
-      let total = 0;
-      
-      sections.forEach(section => {
-        const posts = CMS.getPostsBySection ? CMS.getPostsBySection(section) : [];
-        const countEl = document.getElementById(section + '-count');
-        if (countEl) {
-          countEl.textContent = posts.length + ' ' + (posts.length === 1 ? 'post' : 'posts');
-        }
-        total += posts.length;
+      ['news', 'works', 'exhibitions', 'texts', 'photo-album'].forEach(sec => {
+        const count = CMS.getPostsBySection(sec).length;
+        document.getElementById('count-' + sec).textContent = count;
       });
-      
-      document.getElementById('total-count').textContent = total;
     }
-
-    // Publicar site
-    async function publicarSite() {
-      const btn = document.querySelector('#publish-container button');
-      const status = document.getElementById('publish-status');
+    
+    // Publicar no GitHub
+    async function publicar() {
+      if (!confirm('Publicar alterações no site?')) return;
       
-      if (!confirm('⚠️ Isso vai publicar todas as alterações no site ao vivo.\\n\\nContinuar?')) return;
-      
-      const rawData = localStorage.getItem('estevanData');
-      if (!rawData) {
-        alert('❌ Nenhuma alteração encontrada.\\nEdite algum post primeiro.');
-        return;
-      }
+      const btn = document.querySelector('.publish-btn');
+      const status = document.getElementById('status');
       
       btn.disabled = true;
       btn.textContent = 'PUBLICANDO...';
       status.style.display = 'block';
-      status.innerHTML = '<span style="color: #666;">Conectando...</span>';
+      status.innerHTML = '<span style="color: #666;">Salvando...</span>';
       
       try {
-        status.innerHTML = '<span style="color: #666;">Salvando no GitHub...</span>';
         const result = await API.publishSite();
-        
-        status.innerHTML = '<span style="color: green; font-weight: bold;">✅ Publicado!</span>';
-        btn.textContent = '✓ PUBLICADO';
-        btn.style.background = '#00aa00';
-        
-        alert('✅ Site atualizado!\\n\\nAs alterações estarão no ar em 1-2 minutos.');
-        localStorage.setItem('lastPublished', new Date().toISOString());
-        
+        status.innerHTML = '<span style="color: green;">✅ Publicado com sucesso!</span>';
         setTimeout(() => {
-          btn.textContent = '🚀 PUBLICAR SITE';
-          btn.style.background = '#0000ff';
-          btn.disabled = false;
           status.style.display = 'none';
+          btn.disabled = false;
+          btn.textContent = '🚀 PUBLICAR SITE';
         }, 3000);
-        
       } catch (error) {
-        console.error('Erro:', error);
         status.innerHTML = '<span style="color: red;">❌ ' + error.message + '</span>';
-        btn.textContent = '❌ TENTAR NOVAMENTE';
         btn.disabled = false;
-        
-        alert('❌ Erro ao publicar:\\n' + error.message);
+        btn.textContent = 'TENTAR NOVAMENTE';
       }
     }
-
-    document.addEventListener('DOMContentLoaded', updateCounts);
+    
+    updateCounts();
   </script>
 </body>
 </html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estevan Pelli</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230000ff'/%3E%3C/svg%3E">
+</head>
+<body class="lang-selection-page">
+  <h1 class="lang-selection-title">ESTEVAN PELLI</h1>
+  
+  <div class="lang-options">
+    <button class="lang-option" onclick="selectLang('PT')">PT</button>
+    <button class="lang-option" onclick="selectLang('EN')">EN</button>
+  </div>
+
+  <script src="js/main.js"></script>
+  <script>
+    function selectLang(lang) {
+      CMS.setLang(lang);
+      window.location.href = 'index.html';
+    }
+    
+    // Check if language already selected
+    if (CMS.getLang()) {
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>

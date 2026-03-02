@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estevan Pelli</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230000ff'/%3E%3C/svg%3E">
+</head>
+<body class="index-page">
+  <!-- Header -->
+  <header class="site-header" id="site-header">
+    <!-- Mobile: hamburger (hidden initially, appears on scroll) -->
+    <button class="menu-toggle" id="menu-toggle" aria-label="Menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    
+    <!-- Desktop: horizontal menu -->
+    <nav class="desktop-menu" id="desktop-menu">
+      <a href="info.html" data-pt="Info" data-en="Info">Info</a>
+      <a href="news.html" data-pt="News" data-en="News">News</a>
+      <a href="texts.html" data-pt="Textos" data-en="Texts">Texts</a>
+      <a href="works.html" data-pt="Trabalhos" data-en="Works">Works</a>
+      <a href="exhibitions.html" data-pt="Exposições" data-en="Exhibitions">Exhibitions</a>
+      <a href="photo-album.html" data-pt="Álbum de fotos" data-en="Photo Album">Photo Album</a>
+      <a href="tags.html" data-pt="Tags" data-en="Tags">Tags</a>
+    </nav>
+    
+    <h1 class="page-title-header" id="page-title-header"></h1>
+    <a href="index.html" class="site-logo">ESTEVAN PELLI</a>
+  </header>
+
+  <!-- Mobile Menu Dropdown -->
+  <nav class="mobile-menu-dropdown" id="mobile-menu-dropdown">
+    <ul class="menu-items">
+      <li><a href="info.html" data-pt="Info" data-en="Info">Info</a></li>
+      <li><a href="news.html" data-pt="News" data-en="News">News</a></li>
+      <li><a href="texts.html" data-pt="Textos" data-en="Texts">Texts</a></li>
+      <li><a href="works.html" data-pt="Trabalhos" data-en="Works">Works</a></li>
+      <li><a href="exhibitions.html" data-pt="Exposições" data-en="Exhibitions">Exhibitions</a></li>
+      <li><a href="photo-album.html" data-pt="Álbum de fotos" data-en="Photo Album">Photo Album</a></li>
+      <li><a href="tags.html" data-pt="Tags" data-en="Tags">Tags</a></li>
+    </ul>
+    <div class="menu-lang-toggle">
+      <button id="menu-lang-pt" onclick="setLanguage('PT')">PT</button>
+      <span>|</span>
+      <button id="menu-lang-en" onclick="setLanguage('EN')">EN</button>
+    </div>
+  </nav>
+
+  <!-- Slideshow -->
+  <section class="index-slideshow">
+    <div class="slideshow-container" id="slideshow">
+      <!-- Slides loaded by JS -->
+    </div>
+    <div class="slideshow-dots" id="slideshow-dots">
+      <!-- Dots loaded by JS -->
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="index-footer">
+    <div class="footer-content">
+      <p class="footer-copyright">© 2026 Estevan Pelli</p>
+      <div class="footer-links">
+        <a href="https://instagram.com/estevanpelli" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+          </svg>
+        </a>
+        <a href="contact.html" data-pt="Contato" data-en="Contact">Contact</a>
+        <a href="tags.html">Tags</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+<script src="js/cms.js"></script>  <!-- Adicionar esta linha -->
+
+<script>
+  // Antes de renderizar, espera CMS carregar
+  document.addEventListener('DOMContentLoaded', async () => {
+    await CMS.init(); // Garante que dados estão carregados
+    
+    // Agora chama sua função de renderização
+    if (typeof renderNews === 'function') {
+      renderNews();
+    }
+  });
+</script>
+</body>
+</html>

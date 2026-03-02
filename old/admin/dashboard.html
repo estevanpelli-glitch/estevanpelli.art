@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Admin</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .admin-header {
+      background: #0000ff;
+      color: white;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .admin-header a {
+      color: white;
+      text-decoration: none;
+      opacity: 0.8;
+    }
+    .admin-header a:hover { opacity: 1; }
+    
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 24px;
+      padding: 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .dash-card {
+      background: white;
+      padding: 24px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.2s;
+      border: 2px solid transparent;
+    }
+    .dash-card:hover {
+      transform: translateY(-2px);
+      border-color: #0000ff;
+    }
+    .dash-card h3 {
+      margin-bottom: 8px;
+      color: #0000ff;
+    }
+    .dash-card p {
+      color: #666;
+      font-size: 14px;
+    }
+    .dash-card .count {
+      font-size: 32px;
+      font-weight: bold;
+      color: #000;
+      margin-top: 16px;
+    }
+    
+    .publish-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: #0000ff;
+      color: white;
+      border: none;
+      padding: 16px 32px;
+      border-radius: 50px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,255,0.3);
+      font-size: 14px;
+    }
+    .publish-btn:hover {
+      background: #0000cc;
+    }
+    .publish-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    
+    .status-msg {
+      position: fixed;
+      bottom: 100px;
+      right: 30px;
+      background: white;
+      padding: 16px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      display: none;
+      max-width: 300px;
+    }
+  </style>
+</head>
+<body style="background: #f5f5f5; margin: 0; font-family: 'Archivo', sans-serif;">
+  <header class="admin-header">
+    <div>
+      <h2 style="margin: 0;">ESTEVAN PELLI</h2>
+      <small>Painel Administrativo</small>
+    </div>
+    <div style="display: flex; gap: 24px; align-items: center;">
+      <a href="../index.html">Ver site</a>
+      <a href="#" onclick="CMS.logout(); window.location.href='index.html'; return false;">Sair</a>
+    </div>
+  </header>
+
+  <main class="dashboard-grid">
+    <a href="posts.html?section=news" class="dash-card">
+      <h3>News</h3>
+      <p>Notícias e atualizações</p>
+      <div class="count" id="count-news">0</div>
+    </a>
+    
+    <a href="posts.html?section=works" class="dash-card">
+      <h3>Works</h3>
+      <p>Obras e trabalhos</p>
+      <div class="count" id="count-works">0</div>
+    </a>
+    
+    <a href="posts.html?section=exhibitions" class="dash-card">
+      <h3>Exhibitions</h3>
+      <p>Exposições</p>
+      <div class="count" id="count-exhibitions">0</div>
+    </a>
+    
+    <a href="posts.html?section=texts" class="dash-card">
+      <h3>Texts</h3>
+      <p>Textos e ensaios</p>
+      <div class="count" id="count-texts">0</div>
+    </a>
+    
+    <a href="posts.html?section=photo-album" class="dash-card">
+      <h3>Photo Album</h3>
+      <p>Álbum de fotos</p>
+      <div class="count" id="count-photo-album">0</div>
+    </a>
+  </main>
+
+  <button class="publish-btn" onclick="publicar()">🚀 PUBLICAR SITE</button>
+  <div id="status" class="status-msg"></div>
+
+  <script src="../js/cms.js"></script>
+  <script src="js/api-client.js"></script>
+  
+  <script>
+    // Verifica login
+    if (!CMS.checkAdminAuth()) {
+      window.location.href = 'index.html';
+    }
+    
+    // Atualiza contadores
+    function updateCounts() {
+      ['news', 'works', 'exhibitions', 'texts', 'photo-album'].forEach(sec => {
+        const count = CMS.getPostsBySection(sec).length;
+        document.getElementById('count-' + sec).textContent = count;
+      });
+    }
+    
+    // Publicar no GitHub
+    async function publicar() {
+      if (!confirm('Publicar alterações no site?')) return;
+      
+      const btn = document.querySelector('.publish-btn');
+      const status = document.getElementById('status');
+      
+      btn.disabled = true;
+      btn.textContent = 'PUBLICANDO...';
+      status.style.display = 'block';
+      status.innerHTML = '<span style="color: #666;">Salvando...</span>';
+      
+      try {
+        const result = await API.publishSite();
+        status.innerHTML = '<span style="color: green;">✅ Publicado com sucesso!</span>';
+        setTimeout(() => {
+          status.style.display = 'none';
+          btn.disabled = false;
+          btn.textContent = '🚀 PUBLICAR SITE';
+        }, 3000);
+      } catch (error) {
+        status.innerHTML = '<span style="color: red;">❌ ' + error.message + '</span>';
+        btn.disabled = false;
+        btn.textContent = 'TENTAR NOVAMENTE';
+      }
+    }
+    
+    updateCounts();
+  </script>
+</body>
+</html>

@@ -1,66 +1,75 @@
 /**
- * CMS Client-side - Lê dados JSON do GitHub/Netlify
- * Usado nas páginas públicas (news.html, works.html, etc.)
- * Versão compatível com CMS existente no main.js
+ * CMS - Sistema de dados unificado
+ * Carrega do JSON público, fallback para localStorage
  */
 
-// Se CMS já existe (do main.js), estende-o. Se não, cria novo.
-if (typeof window.CMS === 'undefined') {
-  window.CMS = {};
-}
-
-// Adiciona/atualiza métodos específicos para o site público
-Object.assign(window.CMS, {
+const CMS = {
   data: null,
-  settings: null,
   
   async init() {
+    // Tenta carregar do JSON primeiro (dados publicados)
     try {
-      // Carrega posts
-      const postsResponse = await fetch('/data/posts.json');
-      if (!postsResponse.ok) throw new Error('Erro ao carregar posts');
-      this.data = await postsResponse.json();
-      
-      // Carrega settings
-      const settingsResponse = await fetch('/data/settings.json');
-      if (settingsResponse.ok) {
-        this.settings = await settingsResponse.json();
+      const response = await fetch('/data/posts.json');
+      if (response.ok) {
+        this.data = await response.json();
+        console.log('CMS: Dados do JSON', this.data.posts?.length || 0, 'posts');
+        return;
       }
-      
-      // Idioma salvo ou padrão
-      this.lang = localStorage.getItem('estevanLang') || this.settings?.langDefault || 'PT';
-      
-      console.log('CMS carregado:', this.data.posts?.length || 0, 'posts');
-      return true;
-    } catch (error) {
-      console.error('Erro CMS:', error);
-      return false;
+    } catch(e) {
+      console.log('CMS: JSON não disponível, usando localStorage');
+    }
+    
+    // Fallback para localStorage (edições locais)
+    const local = localStorage.getItem('estevanData');
+    if (local) {
+      this.data = JSON.parse(local);
+    } else {
+      // Dados zerados iniciais
+      this.data = {
+        posts: [],
+        settings: { username: 'admin', password: 'admin123', langDefault: 'PT' },
+        tags: []
+      };
     }
   },
   
   getPostsBySection(section) {
     if (!this.data?.posts) return [];
-    if (section === 'all') return this.data.posts;
-    return this.data.posts.filter(post => 
-      post.section === section && post.status === 'published'
-    );
+    return this.data.posts.filter(p => p.section === section && p.status === 'published');
   },
   
   getPostById(id) {
-    if (!this.data?.posts) return null;
-    return this.data.posts.find(post => post.id === id);
+    return this.data?.posts?.find(p => p.id === id) || null;
   },
   
-  getSlideshow() {
-    return this.settings?.slideshow || [];
+  savePost(post) {
+    if (!this.data.posts) this.data.posts = [];
+    
+    if (post.id) {
+      // Update
+      const idx = this.data.posts.findIndex(p => p.id === post.id);
+      if (idx !== -1) this.data.posts[idx] = { ...post, updatedAt: new Date().toISOString() };
+    } else {
+      // Create
+      post.id = Date.now().toString();
+      post.createdAt = new Date().toISOString();
+      this.data.posts.push(post);
+    }
+    
+    localStorage.setItem('estevanData', JSON.stringify(this.data));
+    return post;
+  },
+  
+  deletePost(id) {
+    this.data.posts = this.data.posts.filter(p => p.id !== id);
+    localStorage.setItem('estevanData', JSON.stringify(this.data));
   },
   
   getLang() {
-    return this.lang || localStorage.getItem('estevanLang') || 'PT';
+    return localStorage.getItem('estevanLang') || 'PT';
   },
   
   setLang(lang) {
-    this.lang = lang;
     localStorage.setItem('estevanLang', lang);
     window.location.reload();
   },
@@ -68,16 +77,35 @@ Object.assign(window.CMS, {
   formatDate(dateString, lang) {
     if (!dateString) return '';
     const date = new Date(dateString);
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    return date.toLocaleDateString(lang === 'PT' ? 'pt-BR' : 'en-US', options);
+    const opt = { year: 'numeric', month: 'long', day: 'numeric' };
+    const l = lang || this.getLang();
+    return date.toLocaleDateString(l === 'PT' ? 'pt-BR' : 'en-US', opt);
+  },
+  
+  login(user, pass) {
+    const u = this.data?.settings?.username || 'admin';
+    const p = this.data?.settings?.password || 'admin123';
+    if (user === u && pass === p) {
+      sessionStorage.setItem('adminToken', 'logged');
+      return true;
+    }
+    return false;
+  },
+  
+  checkAdminAuth() {
+    return sessionStorage.getItem('adminToken') === 'logged';
+  },
+  
+  logout() {
+    sessionStorage.removeItem('adminToken');
   }
-});
+};
 
-// Auto-inicializa quando DOM estiver pronto (só se ainda não tiver dados)
+// Inicializa automaticamente
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    if (!window.CMS.data) window.CMS.init();
-  });
+  document.addEventListener('DOMContentLoaded', () => CMS.init());
 } else {
-  if (!window.CMS.data) window.CMS.init();
+  CMS.init();
 }
+
+window.CMS = CMS;

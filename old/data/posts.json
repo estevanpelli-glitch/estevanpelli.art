@@ -1,0 +1,28 @@
+{
+  "lastUpdate": "2026-03-03T12:00:00Z",
+  "posts": [
+    {
+      "id": "news-1",
+      "section": "news",
+      "titlePT": "Exposição Formas Fugidias no Massapê Projetos",
+      "titleEN": "Fugitive Forms Exhibition at Massapê Projetos",
+      "date": "2024-09-15",
+      "local": "Massapê Projetos, São Paulo",
+      "images": ["uploads/DSCF0201.jpg", "uploads/DSCF0250.jpg"],
+      "obra": {
+        "titulo": "Autorretrato",
+        "ano": "2023",
+        "seriePT": "série Potentia Gaudendi",
+        "serieEN": "Potentia Gaudendi series",
+        "tecnicaPT": "grafite e lápis de cor sobre papel em caixote escultural de madeira envernizada e vidro",
+        "tecnicaEN": "graphite and colored pencil on paper in sculptural wooden crate with varnish and glass",
+        "dimensoes": "42,2 × 63,9 × 2,5 cm"
+      },
+      "descriptionPT": "<p>Estevan Pelli apresenta sua primeira exposição individual na Massapê Projetos, em São Paulo.</p>",
+      "descriptionEN": "<p>Estevan Pelli presents his first solo exhibition at Massapê Projetos, in São Paulo.</p>",
+      "tags": ["exposicao", "2024", "massape", "pintura"],
+      "status": "published",
+      "createdAt": "2024-09-15T10:00:00Z"
+    }
+  ]
+}
